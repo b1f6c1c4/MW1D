@@ -15,30 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="Macro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Solver.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Micro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Macro.cpp">
+    <ClCompile Include="Solver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Micro.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Macro.h">
+    <ClInclude Include="Solver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Solver.h">
+    <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
