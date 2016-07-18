@@ -15,3 +15,6 @@
 #else
 #define ASSERT(val)
 #endif
+
+#include <vector>
+typedef std::vector<bool> bits;
