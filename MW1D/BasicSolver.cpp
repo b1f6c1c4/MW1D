@@ -1,4 +1,4 @@
-#include "Solver.h"
+#include "BasicSolver.h"
 
 template<typename T>
 void First(T &set, size_t n, size_t m)
@@ -41,13 +41,16 @@ bool Next(T &set)
     return true;
 }
 
-ProbMacro::ProbMacro(size_t width) : Macro(width), OptimalProb(NAN) { }
+ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(NAN), Info(width, UNKNOWN) { }
 
-ProbMacro::ProbMacro(const ProbMacro& other, size_t id, block_t m) : Macro(other, id, m), OptimalProb(NAN) { }
+ExtendedMacro::ExtendedMacro(const ExtendedMacro& other, size_t id, block_t m) : Macro(other, id, m), Prob(NAN), Info(other.Info)
+{
+    Info[id] = m;
+}
 
-ProbMacro::~ProbMacro() { }
+ExtendedMacro::~ExtendedMacro() { }
 
-Solver::Solver(size_t n, size_t m) : m_Forks(0), m_Root(std::make_unique<ProbMacro>(n))
+BasicSolver::BasicSolver(size_t n, size_t m) : m_Forks(0), m_Root(std::make_unique<ExtendedMacro>(n)), m_M(m)
 {
     Micro micro;
     First(micro, n, m);
@@ -62,26 +65,31 @@ Solver::Solver(size_t n, size_t m) : m_Forks(0), m_Root(std::make_unique<ProbMac
     }
 }
 
-Solver::~Solver() { }
+BasicSolver::~BasicSolver() { }
 
-size_t Solver::GetForks() const
+size_t BasicSolver::GetForks() const
 {
     return m_Forks.load();
 }
 
-double Solver::Solve()
+void BasicSolver::IncrementForks()
+{
+    ++m_Forks;
+}
+
+double BasicSolver::Solve()
 {
     return Fork(*m_Root);
 }
 
-double Solver::Fork(const ProbMacro &macro, size_t id)
+double BasicSolver::Fork(const ExtendedMacro &macro, size_t id)
 {
     double p0 = 0;
 
     block_t lst[] = { 0, 1, 2 };
     for (auto m : lst)
     {
-        ProbMacro newMacro(macro, id, m);
+        ExtendedMacro newMacro(macro, id, m);
         if (newMacro.Size() > 0)
         {
             auto p = static_cast<double>(newMacro.Size()) / macro.Size();
@@ -91,24 +99,4 @@ double Solver::Fork(const ProbMacro &macro, size_t id)
     }
 
     return p0;
-}
-
-double Solver::Fork(ProbMacro &macro)
-{
-    if (macro.Size() == 1)
-        return 1;
-
-    ++m_Forks;
-
-    double pMax = 0;
-    for (size_t id = 0; id < macro.GetWidth(); id++)
-    {
-        if (macro.IsOpen(id))
-            continue;
-
-        auto pf = Fork(macro, id);
-        if (pf > pMax)
-            pMax = pf;
-    }
-    return macro.OptimalProb = pMax;
 }

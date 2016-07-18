@@ -146,15 +146,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BasicSolver.cpp" />
     <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Micro.cpp" />
-    <ClCompile Include="Solver.cpp" />
+    <ClCompile Include="OptimalSolver.cpp" />
+    <ClCompile Include="SingleSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Micro.h" />
-    <ClInclude Include="Solver.h" />
+    <ClInclude Include="OptimalSolver.h" />
+    <ClInclude Include="SingleSolver.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

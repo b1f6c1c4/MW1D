@@ -1,11 +1,14 @@
 #include "stdafx.h"
-#include "Solver.h"
+#include "BasicSolver.h"
+#include "OptimalSolver.h"
+#include "SingleSolver.h"
 #include <iostream>
 #include <string>
 #include <limits>
 #include <thread>
 #include <condition_variable>
 #include <chrono>
+#include <atomic>
 
 void WriteUsage()
 {
@@ -20,7 +23,7 @@ void WriteUsage()
     std::cout << "  <M> : number of mines" << std::endl;
 }
 
-std::unique_ptr<Solver> slv;
+std::unique_ptr<BasicSolver> slv;
 std::mutex mtx;
 std::condition_variable cv;
 std::atomic_bool finished;
@@ -55,7 +58,7 @@ int main(int argc, char **argv)
 
     std::cout << "Solving 1x" << n << " Minesweeper game ..." << std::endl;
 
-    slv = std::make_unique<Solver>(n, m);
+    slv = std::make_unique<SingleSolver>(n, m);
     finished.store(false);
 
     {

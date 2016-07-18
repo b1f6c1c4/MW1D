@@ -2,8 +2,8 @@
 #include "stdafx.h"
 #include "Micro.h"
 
-#define MINE -1
 typedef char block_t;
+#define MINE static_cast<block_t>(-1)
 
 class Macro : public MicroSet
 {

@@ -24,7 +24,13 @@
     <ClCompile Include="Micro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Solver.cpp">
+    <ClCompile Include="OptimalSolver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicSolver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,10 +41,16 @@
     <ClInclude Include="Micro.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Solver.h">
+    <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="OptimalSolver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicSolver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
