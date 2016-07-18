@@ -47,7 +47,7 @@ ProbMacro::ProbMacro(const ProbMacro& other, size_t id, block_t m) : Macro(other
 
 ProbMacro::~ProbMacro() { }
 
-Solver::Solver(size_t n, size_t m) : m_Root(std::make_unique<ProbMacro>(n))
+Solver::Solver(size_t n, size_t m) : m_Forks(0), m_Root(std::make_unique<ProbMacro>(n))
 {
     Micro micro;
     First(micro, n, m);
@@ -63,6 +63,11 @@ Solver::Solver(size_t n, size_t m) : m_Root(std::make_unique<ProbMacro>(n))
 }
 
 Solver::~Solver() { }
+
+size_t Solver::GetForks() const
+{
+    return m_Forks.load();
+}
 
 double Solver::Solve()
 {
@@ -92,6 +97,8 @@ double Solver::Fork(ProbMacro &macro)
 {
     if (macro.Size() == 1)
         return 1;
+
+    ++m_Forks;
 
     double pMax = 0;
     for (size_t id = 0; id < macro.GetWidth(); id++)
