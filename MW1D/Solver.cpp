@@ -1,13 +1,15 @@
 #include "Solver.h"
 
-void First(bits &set, size_t n, size_t m)
+template<typename T>
+void First(T &set, size_t n, size_t m)
 {
     set.resize(n, false);
     for (auto i = n - m; i < n; i++)
         set[i] = true;
 }
 
-bool Next(bits &set)
+template<typename T>
+bool Next(T &set)
 {
     auto cntM = 0;
     while (cntM < set.size())
@@ -30,11 +32,11 @@ bool Next(bits &set)
 
     set[id] = false;
 
-    for (auto i = id - 1 - cntM; i < id; i++)
-        set[i] = true;
-
     for (auto i = 0; i < cntM; i++)
         set[i] = false;
+
+    for (auto i = id - 1 - cntM; i < id; i++)
+        set[i] = true;
 
     return true;
 }
@@ -51,7 +53,10 @@ Solver::Solver(size_t n, size_t m) : m_Root(std::make_unique<ProbMacro>(n))
     First(micro, n, m);
     while (true)
     {
-        m_Root->Emplace(micro);
+        Micro microT;
+        microT.DeepClone(micro);
+        m_Root->Emplace(microT);
+
         if (!Next(micro))
             break;
     }
@@ -68,7 +73,7 @@ double Solver::Fork(const ProbMacro &macro, size_t id)
 {
     double p0 = 0;
 
-    block_t lst[] = { MINE, 0, 1, 2 };
+    block_t lst[] = { 0, 1, 2 };
     for (auto m : lst)
     {
         ProbMacro newMacro(macro, id, m);
@@ -85,10 +90,16 @@ double Solver::Fork(const ProbMacro &macro, size_t id)
 
 double Solver::Fork(ProbMacro &macro)
 {
+    if (macro.Size() == 1)
+        return 1;
+
     double pMax = 0;
-    for (size_t id = 0; id < macro.Size(); id++)
+    for (size_t id = 0; id < macro.GetWidth(); id++)
     {
-        auto pf = Fork(macro);
+        if (macro.IsOpen(id))
+            continue;
+
+        auto pf = Fork(macro, id);
         if (pf > pMax)
             pMax = pf;
     }

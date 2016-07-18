@@ -3,11 +3,27 @@
 #include <functional>
 #include <memory>
 
-#ifdef SHARE_MICRO
-typedef std::shared_ptr<bits> Micro;
-#else
-typedef bits Micro;
-#endif
+class Micro
+{
+public:
+    Micro();
+    Micro(const Micro &other);
+    Micro(Micro &&other);
+
+    Micro &operator=(const Micro &) = delete;
+    Micro &operator=(Micro &&) = delete;
+
+    Micro &DeepClone(const Micro &other);
+
+    bit_reference operator[](size_t id);
+    bit_const_reference operator[](size_t id) const;
+
+    size_t size() const;
+    void resize(size_t sz, bool val);
+
+private:
+    std::shared_ptr<bits> m_Bits;
+};
 
 typedef std::function<bool(const Micro &)> filter_t;
 
@@ -27,31 +43,3 @@ public:
 private:
     std::vector<Micro> m_Set;
 };
-
-inline MicroSet::MicroSet() { }
-
-inline MicroSet::MicroSet(const MicroSet &other) : m_Set(other.m_Set) { }
-
-inline MicroSet::MicroSet(const MicroSet &other, filter_t filter)
-{
-    for (auto &m : other.m_Set)
-        if (filter(m))
-            m_Set.push_back(m);
-}
-
-inline MicroSet::~MicroSet() { }
-
-inline size_t MicroSet::Size() const
-{
-    return m_Set.size();
-}
-
-inline void MicroSet::Emplace(const Micro &m)
-{
-    m_Set.emplace_back(m);
-}
-
-inline void MicroSet::Emplace(Micro &&m)
-{
-    m_Set.emplace_back(std::move(m));
-}

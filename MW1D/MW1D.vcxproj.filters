@@ -21,6 +21,12 @@
     <ClCompile Include="Solver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Micro.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Macro.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
