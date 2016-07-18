@@ -35,10 +35,13 @@ public:
     MicroSet(const MicroSet &other, filter_t filter);
     virtual ~MicroSet();
 
-    size_t Size() const;
+    size_t size() const;
+    std::vector<Micro>::const_iterator begin() const;
+    std::vector<Micro>::const_iterator end() const;
 
     void Emplace(const Micro &m);
     void Emplace(Micro &&m);
+
 
 private:
     std::vector<Micro> m_Set;

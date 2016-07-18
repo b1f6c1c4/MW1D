@@ -74,7 +74,7 @@ double SingleSolver::Fork(ExtendedMacro &macro)
         }
     }
 
-    if (macro.Size() == 1)
+    if (macro.size() == 1)
     {
         size_t cnt = 0;
         for (size_t i = 0; i <= last; i++)

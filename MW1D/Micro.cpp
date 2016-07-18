@@ -51,9 +51,19 @@ MicroSet::MicroSet(const MicroSet &other, filter_t filter)
 
 MicroSet::~MicroSet() { }
 
-size_t MicroSet::Size() const
+size_t MicroSet::size() const
 {
     return m_Set.size();
+}
+
+std::vector<Micro>::const_iterator MicroSet::begin() const
+{
+    return m_Set.begin();
+}
+
+std::vector<Micro>::const_iterator MicroSet::end() const
+{
+    return  m_Set.end();
 }
 
 void MicroSet::Emplace(const Micro &m)

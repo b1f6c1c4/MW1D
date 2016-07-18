@@ -90,9 +90,9 @@ double BasicSolver::Fork(const ExtendedMacro &macro, size_t id)
     for (auto m : lst)
     {
         ExtendedMacro newMacro(macro, id, m);
-        if (newMacro.Size() > 0)
+        if (newMacro.size() > 0)
         {
-            auto p = static_cast<double>(newMacro.Size()) / macro.Size();
+            auto p = static_cast<double>(newMacro.size()) / macro.size();
             auto pf = Fork(newMacro);
             p0 += p * pf;
         }

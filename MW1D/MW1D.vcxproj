@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BasicSolver.cpp" />
+    <ClCompile Include="FullSolver.cpp" />
     <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Micro.cpp" />
@@ -155,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicSolver.h" />
+    <ClInclude Include="FullSolver.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Micro.h" />
     <ClInclude Include="OptimalSolver.h" />

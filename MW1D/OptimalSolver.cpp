@@ -9,7 +9,7 @@ OptimalSolver::~OptimalSolver() { }
 
 double OptimalSolver::Fork(ExtendedMacro &macro)
 {
-    if (macro.Size() == 1)
+    if (macro.size() == 1)
         return 1;
 
     IncrementForks();
