@@ -13,7 +13,7 @@
 
 void WriteUsage()
 {
-    std::cout << "Usage: MW1D <N> <M> <STRATEGY> [-v]" << std::endl;
+    std::cout << "Usage: MW1D <N> <M> <STRATEGY> [-v | -vv]" << std::endl;
     std::cout << "Return:" << std::endl;
     std::cout << "  The probability of winning a 1xN Minesweeper game with the specified strategy" << std::endl;
     std::cout << "  Attention: One may lose on the first click" << std::endl;
@@ -27,6 +27,7 @@ void WriteUsage()
     std::cout << "    - op: Optimal" << std::endl;
     std::cout << "Options:" << std::endl;
     std::cout << "  -v : verbose " << std::endl;
+    std::cout << "  -vv : more verbose " << std::endl;
 }
 
 std::unique_ptr<BasicSolver> slv;
@@ -35,9 +36,9 @@ std::condition_variable cv;
 std::atomic_bool finished;
 double result;
 
-void WorkerThreadEntry()
+void WorkerThreadEntry(bool mv)
 {
-    result = slv->Solve();
+    result = slv->Solve(mv);
 
     {
         std::lock_guard<std::mutex> lock(mtx);
@@ -54,13 +55,18 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 5 && strcmp(argv[4], "-v") != 0)
-    {
-        WriteUsage();
-        return 0;
-    }
-
-    auto verbose = argc == 5;
+    auto verbose = false;
+    auto moreVerbose = false;
+    if (argc == 5)
+        if (strcmp(argv[4], "-v") == 0)
+            verbose = true;
+        else if (strcmp(argv[4], "-vv") == 0)
+            moreVerbose = true;
+        else
+        {
+            WriteUsage();
+            return 0;
+        }
 
     size_t n, m;
     try
@@ -111,7 +117,7 @@ int main(int argc, char **argv)
     {
         std::unique_lock<std::mutex> lock(mtx);
 
-        std::thread worker(WorkerThreadEntry);
+        std::thread worker(WorkerThreadEntry, moreVerbose);
 
         if (verbose)
             while (true)

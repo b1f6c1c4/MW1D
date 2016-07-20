@@ -63,7 +63,7 @@ std::vector<Micro>::const_iterator MicroSet::begin() const
 
 std::vector<Micro>::const_iterator MicroSet::end() const
 {
-    return  m_Set.end();
+    return m_Set.end();
 }
 
 void MicroSet::Emplace(const Micro &m)

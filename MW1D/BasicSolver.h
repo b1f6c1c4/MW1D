@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Macro.h"
+#include <string>
 #include <atomic>
 
 #define UNKNOWN static_cast<block_t>(-2)
@@ -24,17 +25,20 @@ public:
 
     size_t GetForks() const;
 
-    double Solve();
+    double Solve(bool verbose = false);
 
 protected:
-    double Fork(const ExtendedMacro &macro, size_t id);
-    virtual double Fork(ExtendedMacro &macro) = 0;
+    double Fork(const ExtendedMacro &macro, size_t id, size_t depth);
+    virtual double Fork(ExtendedMacro &macro, size_t depth) = 0;
 
     void IncrementForks();
+    void Log(size_t depth, std::string &&str) const;
+    void Log(size_t depth, std::function<std::string()> strFunction) const;
 
     std::unique_ptr<ExtendedMacro> m_Root;
     size_t m_M;
 
 private:
     std::atomic<size_t> m_Forks;
+    bool m_Verbose;
 };

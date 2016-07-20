@@ -1,6 +1,7 @@
 #include "BasicSolver.h"
+#include <iostream>
 
-template<typename T>
+template <typename T>
 void First(T &set, size_t n, size_t m)
 {
     set.resize(n, false);
@@ -8,7 +9,7 @@ void First(T &set, size_t n, size_t m)
         set[i] = true;
 }
 
-template<typename T>
+template <typename T>
 bool Next(T &set)
 {
     auto cntM = 0;
@@ -43,14 +44,14 @@ bool Next(T &set)
 
 ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(NAN), Info(width, UNKNOWN) { }
 
-ExtendedMacro::ExtendedMacro(const ExtendedMacro& other, size_t id, block_t m) : Macro(other, id, m), Prob(NAN), Info(other.Info)
+ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) : Macro(other, id, m), Prob(NAN), Info(other.Info)
 {
     Info[id] = m;
 }
 
 ExtendedMacro::~ExtendedMacro() { }
 
-BasicSolver::BasicSolver(size_t n, size_t m) : m_Forks(0), m_Root(std::make_unique<ExtendedMacro>(n)), m_M(m)
+BasicSolver::BasicSolver(size_t n, size_t m) : m_Root(std::make_unique<ExtendedMacro>(n)), m_M(m), m_Forks(0), m_Verbose(false)
 {
     Micro micro;
     First(micro, n, m);
@@ -77,26 +78,56 @@ void BasicSolver::IncrementForks()
     ++m_Forks;
 }
 
-double BasicSolver::Solve()
+void BasicSolver::Log(size_t depth, std::string &&str) const
 {
-    return Fork(*m_Root);
+    if (m_Verbose)
+        std::cout << std::string(depth, '\t') << str << std::endl;
 }
 
-double BasicSolver::Fork(const ExtendedMacro &macro, size_t id)
+void BasicSolver::Log(size_t depth, std::function<std::string()> strFunction) const
+{
+    if (m_Verbose)
+        std::cout << std::string(depth, '\t') << strFunction() << std::endl;
+}
+
+double BasicSolver::Solve(bool verbose)
+{
+    m_Verbose = verbose;
+    return Fork(*m_Root, 0);
+}
+
+double BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
 {
     double p0 = 0;
 
-    block_t lst[] = { 0, 1, 2 };
+    block_t lst[] = {0, 1, 2};
+
+    Log(depth, [&]()
+    {
+        return "Fork #" + std::to_string(id) + ":";
+    });
+
     for (auto m : lst)
     {
         ExtendedMacro newMacro(macro, id, m);
         if (newMacro.size() > 0)
         {
             auto p = static_cast<double>(newMacro.size()) / macro.size();
-            auto pf = Fork(newMacro);
+
+            Log(depth, [&]()
+                {
+                    return "  case " + std::to_string(static_cast<int>(m)) +
+                        " (p=" + std::to_string(p) + "):";
+                });
+            auto pf = Fork(newMacro, depth + 1);
             p0 += p * pf;
         }
     }
+
+    Log(depth, [&]()
+    {
+        return "Join #" + std::to_string(id) + ": p=" + std::to_string(p0);
+    });
 
     return p0;
 }

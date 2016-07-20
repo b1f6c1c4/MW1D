@@ -5,7 +5,7 @@ FullSolver::FullSolver(size_t n, size_t m) : BasicSolver(n, m) { }
 
 FullSolver::~FullSolver() { }
 
-double FullSolver::Fork(ExtendedMacro &macro)
+double FullSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
     if (macro.size() == 1)
         return 1;
@@ -20,25 +20,25 @@ double FullSolver::Fork(ExtendedMacro &macro)
 
     for (size_t i = 0; i < macro.GetWidth(); i++)
         if (cnts[i] == 0 && !macro.IsOpen(i))
-            return BasicSolver::Fork(macro, i);
+            return BasicSolver::Fork(macro, i, depth);
 
-    return ForkProb(macro, cnts);
+    return ForkProb(macro, cnts, depth);
 }
 
-double FullSolver::ForkProb(ExtendedMacro& macro, const std::vector<size_t> &cnts)
+double FullSolver::ForkProb(ExtendedMacro &macro, const std::vector<size_t> &cnts, size_t depth)
 {
     auto val = macro.size();
 
     for (size_t i = 0; i < macro.GetWidth(); i++)
         if (cnts[i] < val && !macro.IsOpen(i))
             val = cnts[i];
-    
+
     double p = 0;
     size_t cnt = 0;
     for (size_t i = 0; i < macro.GetWidth(); i++)
         if (cnts[i] <= val && !macro.IsOpen(i))
         {
-            p += BasicSolver::Fork(macro, i);
+            p += BasicSolver::Fork(macro, i, depth);
             cnt++;
         }
 

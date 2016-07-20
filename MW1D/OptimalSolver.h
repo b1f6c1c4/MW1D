@@ -9,5 +9,5 @@ public:
     ~OptimalSolver();
 
 protected:
-    double Fork(ExtendedMacro &macro) override;
+    double Fork(ExtendedMacro &macro, size_t depth) override;
 };
