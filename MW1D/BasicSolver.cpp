@@ -60,6 +60,7 @@ BasicSolver::BasicSolver(size_t n, size_t m) : m_Root(std::make_unique<ExtendedM
     {
         Micro microT;
         microT.DeepClone(micro);
+        microT.SetProb(1);
         m_Root->Emplace(microT);
 
         if (!Next(micro))
@@ -113,18 +114,19 @@ prob BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
         ExtendedMacro newMacro(macro, id, m);
         if (newMacro.size() > 0)
         {
-            prob p = newMacro.size();
-            p /= macro.size();
+            auto p = newMacro.GetTotalProb();
 
             Log(depth, [&]()
                 {
                     return "  case " + std::to_string(static_cast<int>(m)) +
-                        " (p=" + to_string(p) + "):";
+                        " (p=" + to_string(p / macro.GetTotalProb()) + "):";
                 });
             auto pf = Fork(newMacro, depth + 1);
             p0 += p * pf;
         }
     }
+
+    p0 /= macro.GetTotalProb();
 
     Log(depth, [&]()
     {

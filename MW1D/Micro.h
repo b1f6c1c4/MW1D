@@ -22,8 +22,12 @@ public:
     size_t size() const;
     void resize(size_t sz, bool val);
 
+    prob GetProb() const;
+    void SetProb(prob value);
+
 private:
     std::shared_ptr<bits> m_Bits;
+    prob m_PriorProb;
 };
 
 typedef std::function<bool(const Micro &)> filter_t;
@@ -46,7 +50,9 @@ public:
     void Emplace(const Micro &m);
     void Emplace(Micro &&m);
 
+    prob GetTotalProb() const;
 
 private:
     std::vector<Micro> m_Set;
+    prob m_TotalProb;
 };
