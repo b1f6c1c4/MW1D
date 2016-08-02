@@ -4,14 +4,15 @@
 #include <string>
 #include <limits>
 #include <chrono>
+#include <fstream>
 #include "BaseSolver.h"
 #include "SingleSolver.h"
 #include "FullSolver.h"
 #include "OptimalSolver.h"
 #include "MicroSetBuilder.h"
 #include "TotalMinesBuilder.h"
-#include "MineSweeper.h"
 #include "ProbabilityBuilder.h"
+#include "MineSweeper.h"
 
 using namespace std::chrono_literals;
 
@@ -92,19 +93,25 @@ Verbosity ParseVerbosity(const char *str)
 }
 
 #ifdef MW1D_DLL
+void CoreSaveResult(prob &&result, const char *filePath)
+{
+    std::ofstream fout(filePath);
+    fout << result;
+    fout.close();
+}
+
 extern "C"
 {
-    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, __int64 *num, __int64 *den)
+    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, const char *filePath)
     {
         auto builder = std::make_shared<TotalMinesBuilder>(n, m);
         auto slv = ParseSolver(solver);
         MineSweeper mw(builder, slv);
         mw.Run();
-        *num = mw.GetResult().numerator();
-        *den = mw.GetResult().denominator();
+        CoreSaveResult(mw.GetResult(), filePath);
     }
 
-    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, __int64 *num, __int64 *den)
+    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, const char *filePath)
     {
         prob p = pN;
         p /= pD;
@@ -112,8 +119,7 @@ extern "C"
         auto slv = ParseSolver(solver);
         MineSweeper mw(builder, slv);
         mw.Run();
-        *num = mw.GetResult().numerator();
-        *den = mw.GetResult().denominator();
+        CoreSaveResult(mw.GetResult(), filePath);
     }
 }
 #else

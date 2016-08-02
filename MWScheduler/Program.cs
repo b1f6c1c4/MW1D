@@ -55,9 +55,9 @@ namespace MWScheduler
 
         private static void SaveCache(Config cfg)
         {
-            using (var sw = new StreamWriter(@"db\" + cfg.GetFileName()))
+            using (var sw = new StreamWriter(@"db\" + cfg.GetFileName(), true))
             {
-                sw.WriteLine(cfg.Result);
+                sw.WriteLine();
                 sw.WriteLine(cfg.Elapsed.Ticks);
             }
         }

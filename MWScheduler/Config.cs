@@ -17,21 +17,6 @@ namespace MWScheduler
         public override string ToString() => $"{Numerator}/{Denominator}";
     }
 
-    public class LongRational
-    {
-        public LongRational(long numerator, long denominator)
-        {
-            Numerator = numerator;
-            Denominator = denominator;
-        }
-
-        public long Numerator { get; set; }
-
-        public long Denominator { get; set; }
-
-        public override string ToString() => $"{Numerator}/{Denominator}";
-    }
-
     public class Config
     {
         public int Width { get; set; }
@@ -45,8 +30,6 @@ namespace MWScheduler
         public string Strategy { get; set; }
 
         public TimeSpan Elapsed { get; set; }
-
-        public LongRational Result { get; set; }
 
         private string Argument =>
             UseTotalMines
