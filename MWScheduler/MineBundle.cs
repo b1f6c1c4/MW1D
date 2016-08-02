@@ -1,29 +1,47 @@
-﻿namespace MWScheduler
+﻿using System.Collections.Generic;
+
+namespace MWScheduler
 {
     public class MineBundle : MergedInfQueue<Config>
     {
         private ConstMineInfQueue m_CriticalQueue;
 
-        public override void Pop()
+        public MineBundle(IComparer<Config> comparer, int width, int mines, string strategy) : base(comparer)
         {
-            base.Pop();
+            var queue = new ConstMineInfQueue
+                            {
+                                Width = width,
+                                IncreaseMines = true,
+                                TotalMines = mines,
+                                Strategy = strategy
+                            };
+
+            Add(queue);
+            m_CriticalQueue = queue;
+        }
+
+        public override Config Pop()
+        {
+            var res = base.Pop();
             if (Least != m_CriticalQueue)
-                return;
+                return res;
 
             var queue = new ConstMineInfQueue
                             {
                                 Width = m_CriticalQueue.Width + 1,
                                 IncreaseMines = !m_CriticalQueue.IncreaseMines,
-                                Strategy = m_CriticalQueue.Strategy,
                                 TotalMines = m_CriticalQueue.TotalMines,
+                                Strategy = m_CriticalQueue.Strategy,
                                 Prev1T = m_CriticalQueue.Top.Elapsed.Ticks,
                                 Prev2T = null
                             };
             if (!m_CriticalQueue.IncreaseMines)
                 queue.TotalMines++;
 
-            AddQueue(queue);
+            Add(queue);
             m_CriticalQueue = queue;
+
+            return res;
         }
     }
 }

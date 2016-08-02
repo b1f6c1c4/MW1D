@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoundedComparer.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="ConfigInfQueue.cs" />
     <Compile Include="ConstMineInfQueue.cs" />
@@ -51,8 +52,15 @@
     <Compile Include="IInfQueue.cs" />
     <Compile Include="MergedInfQueue.cs" />
     <Compile Include="MineBundle.cs" />
+    <Compile Include="ProbBundle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scheduler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(SolutionDir)$(PlatformName)\$(ConfigurationName)\MW1D.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

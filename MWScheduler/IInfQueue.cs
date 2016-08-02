@@ -4,6 +4,6 @@
     {
         T Top { get; }
 
-        void Pop();
+        T Pop();
     }
 }

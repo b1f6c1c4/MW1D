@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MW1D", "MW1D\MW1D.vcxproj", "{4EF2EA1D-FD29-48AA-8B4B-557BD7F4C574}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MWScheduler", "MWScheduler\MWScheduler.csproj", "{297FD7C6-D538-49DE-B42B-990251E2DA4A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4EF2EA1D-FD29-48AA-8B4B-557BD7F4C574} = {4EF2EA1D-FD29-48AA-8B4B-557BD7F4C574}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

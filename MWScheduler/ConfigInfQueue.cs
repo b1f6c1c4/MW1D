@@ -2,7 +2,7 @@ using System;
 
 namespace MWScheduler
 {
-    public class ConfigInfQueue : IInfQueue<Config>
+    public abstract class ConfigInfQueue : IInfQueue<Config>
     {
         private Config m_Top;
 
@@ -24,11 +24,13 @@ namespace MWScheduler
         public int Width { get; set; }
         public string Strategy { get; set; }
 
-        public void Pop()
+        public Config Pop()
         {
+            var res = Top;
             Prev2T = Prev1T;
             Prev1T = Top.Elapsed.Ticks;
             Top = GenerateOne();
+            return res;
         }
 
         protected virtual Config GenerateEmptyOne()
