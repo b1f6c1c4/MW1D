@@ -13,11 +13,17 @@ size_t ProbabilityBuilder::GetM() const
 void ProbabilityBuilder::First(Micro &set)
 {
     auto n = GetN();
-    set.resize(n, false);
+    if (m_P == 1)
+        set.resize(n, true);
+    else
+        set.resize(n, false);
 }
 
 bool ProbabilityBuilder::Next(Micro &set)
 {
+    if (m_P == 0 || m_P == 1)
+        return false;
+
     auto n = GetN();
     for (auto i = 0; i < n; i++)
         if (set[i])

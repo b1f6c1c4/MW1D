@@ -13,6 +13,9 @@ std::string SingleSolver::GetDescription() const
 
 prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
+    if (macro.size() == 1)
+        return 1;
+
     auto last = macro.GetN() - 1;
 
     Log(depth, [&]()
@@ -146,26 +149,6 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
                 }
             return "AFTER:   " + ss.str();
         });
-
-    if (macro.size() == 1)
-    {
-        size_t cntU = 0;
-        size_t cntM = 0;
-        for (size_t i = 0; i <= last; i++)
-        {
-            if (macro.Info[i] == UNKNOWN)
-                cntU++;
-            if (macro.Info[i] == MINE)
-                cntM++;
-        }
-        if (m_M != UNCERTAIN)
-        {
-            if (cntM == m_M)
-                return 1;
-            if (cntM + cntU == m_M)
-                return 1;
-        }
-    }
 
     if (toFork < macro.GetN())
         return BaseSolver::Fork(macro, toFork, depth);
