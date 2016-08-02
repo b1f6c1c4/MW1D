@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "FullSolver.h"
 #include <algorithm>
 

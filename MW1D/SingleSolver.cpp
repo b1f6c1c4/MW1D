@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SingleSolver.h"
 #include <sstream>
 

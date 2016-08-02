@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Macro.h"
 
 Macro::Macro(size_t width) : m_Width(width), m_Mask(width, false) { }

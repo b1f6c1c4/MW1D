@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "OptimalSolver.h"
 
 OptimalSolver::OptimalSolver(size_t n, size_t m) : BasicSolver(n, m) { }

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Micro.h"
 #include <algorithm>
 #include <iterator>
