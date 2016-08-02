@@ -30,6 +30,8 @@ public:
     NO_COPY(BaseSolver);
     NO_MOVE(BaseSolver);
 
+    virtual std::string GetDescription() const = 0;
+
     size_t GetForks() const;
 
     void LoadData(std::shared_ptr<ExtendedMacro> root, size_t m);

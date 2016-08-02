@@ -8,6 +8,8 @@ public:
     FullSolver();
     ~FullSolver();
 
+    std::string GetDescription() const override;
+
 protected:
     prob Fork(ExtendedMacro &macro, size_t depth) override;
 

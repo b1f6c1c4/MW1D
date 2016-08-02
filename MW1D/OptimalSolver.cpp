@@ -5,6 +5,11 @@ OptimalSolver::OptimalSolver() { }
 
 OptimalSolver::~OptimalSolver() { }
 
+std::string OptimalSolver::GetDescription() const
+{
+    return "Optimal";
+}
+
 prob OptimalSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
     if (macro.size() == 1)

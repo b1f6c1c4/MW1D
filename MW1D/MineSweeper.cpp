@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "MineSweeper.h"
-#include <iostream>
 
 MineSweeper::MineSweeper(std::shared_ptr<MicroSetBuilder> builder, std::shared_ptr<BaseSolver> solver) : m_Builder(builder), m_Solver(solver) { }
 

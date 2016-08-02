@@ -21,3 +21,8 @@ inline std::string to_string(prob value)
 {
     return std::to_string(value.numerator()) + "/" + std::to_string(value.denominator());
 }
+
+inline double to_double(prob value)
+{
+    return boost::rational_cast<double>(value);
+}

@@ -6,6 +6,11 @@ SingleSolver::SingleSolver() { }
 
 SingleSolver::~SingleSolver() { }
 
+std::string SingleSolver::GetDescription() const
+{
+    return "Single";
+}
+
 prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
     auto last = macro.GetN() - 1;

@@ -5,6 +5,11 @@ FullSolver::FullSolver() { }
 
 FullSolver::~FullSolver() { }
 
+std::string FullSolver::GetDescription() const
+{
+    return "Full Logic - Lowest Probability";
+}
+
 prob FullSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
     if (macro.size() == 1)

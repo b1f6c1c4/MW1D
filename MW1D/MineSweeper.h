@@ -45,9 +45,9 @@ void MineSweeper::RunAsync(std::chrono::duration<Rep, Period> interval)
         while (true)
         {
             auto res = m_CV.wait_for(lock, interval, [&]()
-            {
-                return m_Finished.load();
-            });
+                                     {
+                                         return m_Finished.load();
+                                     });
 
             std::cout << '\r' << m_Solver->GetForks() << " forks" << std::flush;
             if (res)
