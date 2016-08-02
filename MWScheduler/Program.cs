@@ -38,6 +38,8 @@ namespace MWScheduler
             sch.OnPop += cfg => Console.WriteLine($"Started {cfg}");
             sch.OnWork += Operate;
 
+            Directory.CreateDirectory("db");
+
             sch.Start();
             sch.WaitAll();
         }
@@ -53,7 +55,7 @@ namespace MWScheduler
 
         private static void SaveCache(Config cfg)
         {
-            using (var sw = new StreamWriter(cfg.GetFileName()))
+            using (var sw = new StreamWriter(@"db\" + cfg.GetFileName()))
             {
                 sw.WriteLine(cfg.Result);
                 sw.WriteLine(cfg.Elapsed.Ticks);
