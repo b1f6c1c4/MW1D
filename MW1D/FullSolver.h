@@ -9,7 +9,7 @@ public:
     ~FullSolver();
 
 protected:
-    double Fork(ExtendedMacro &macro, size_t depth) override;
+    prob Fork(ExtendedMacro &macro, size_t depth) override;
 
-    virtual double ForkProb(ExtendedMacro &macro, const std::vector<size_t> &cnts, size_t depth);
+    virtual prob ForkProb(ExtendedMacro &macro, const std::vector<size_t> &cnts, size_t depth);
 };

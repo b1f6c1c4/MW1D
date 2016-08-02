@@ -153,6 +153,7 @@
     <ClCompile Include="Micro.cpp" />
     <ClCompile Include="OptimalSolver.cpp" />
     <ClCompile Include="SingleSolver.cpp" />
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicSolver.h" />

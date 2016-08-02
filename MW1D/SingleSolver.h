@@ -9,5 +9,5 @@ public:
     ~SingleSolver();
 
 protected:
-    double Fork(ExtendedMacro &macro, size_t depth) override;
+    prob Fork(ExtendedMacro &macro, size_t depth) override;
 };

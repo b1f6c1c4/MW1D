@@ -17,7 +17,7 @@ public:
     NO_COPY(ExtendedMacro);
     NO_MOVE(ExtendedMacro);
 
-    double Prob;
+    prob Prob;
     std::vector<block_t> Info;
 };
 
@@ -32,11 +32,11 @@ public:
 
     size_t GetForks() const;
 
-    double Solve(bool verbose = false);
+    prob Solve(bool verbose = false);
 
 protected:
-    double Fork(const ExtendedMacro &macro, size_t id, size_t depth);
-    virtual double Fork(ExtendedMacro &macro, size_t depth) = 0;
+    prob Fork(const ExtendedMacro &macro, size_t id, size_t depth);
+    virtual prob Fork(ExtendedMacro &macro, size_t depth) = 0;
 
     void IncrementForks();
     void Log(size_t depth, std::string &&str) const;

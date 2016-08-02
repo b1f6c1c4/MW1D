@@ -34,7 +34,7 @@ std::unique_ptr<BasicSolver> slv;
 std::mutex mtx;
 std::condition_variable cv;
 std::atomic_bool finished;
-double result;
+prob result;
 
 void WorkerThreadEntry(bool mv)
 {
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
         std::cout << "The probability of winning the game with ";
         std::cout << strategyName << " is:" << std::endl;
     }
-    std::cout.precision(std::numeric_limits<double>::max_digits10);
+    std::cout.precision(std::numeric_limits<prob>::max_digits10);
     std::cout << std::fixed << result;
     std::cout << std::endl;
 

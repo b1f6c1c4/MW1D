@@ -36,6 +36,9 @@
     <ClCompile Include="FullSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">

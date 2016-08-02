@@ -6,7 +6,7 @@ SingleSolver::SingleSolver(size_t n, size_t m) : BasicSolver(n, m) { }
 
 SingleSolver::~SingleSolver() { }
 
-double SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
+prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
     auto last = macro.GetWidth() - 1;
 
@@ -164,7 +164,7 @@ double SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 
     IncrementForks();
 
-    double p = 0;
+    prob p = 0;
     size_t cnt = 0;
     for (size_t i = 0; i <= last; i++)
     {
@@ -177,7 +177,7 @@ double SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 
     Log(depth, [&]()
         {
-            return "p=" + std::to_string(p / cnt);
+            return "p=" + to_string(p / cnt);
         });
 
     return macro.Prob = p / cnt;

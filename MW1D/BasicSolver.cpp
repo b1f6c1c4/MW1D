@@ -43,9 +43,9 @@ bool Next(T &set)
     return true;
 }
 
-ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(NAN), Info(width, UNKNOWN) { }
+ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(-1), Info(width, UNKNOWN) { }
 
-ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) : Macro(other, id, m), Prob(NAN), Info(other.Info)
+ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) : Macro(other, id, m), Prob(-1), Info(other.Info)
 {
     Info[id] = m;
 }
@@ -91,15 +91,15 @@ void BasicSolver::Log(size_t depth, std::function<std::string()> strFunction) co
         std::cout << std::string(depth, '\t') << strFunction() << std::endl;
 }
 
-double BasicSolver::Solve(bool verbose)
+prob BasicSolver::Solve(bool verbose)
 {
     m_Verbose = verbose;
     return Fork(*m_Root, 0);
 }
 
-double BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
+prob BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
 {
-    double p0 = 0;
+    prob p0 = 0;
 
     block_t lst[] = {0, 1, 2};
 
@@ -113,12 +113,13 @@ double BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
         ExtendedMacro newMacro(macro, id, m);
         if (newMacro.size() > 0)
         {
-            auto p = static_cast<double>(newMacro.size()) / macro.size();
+            prob p = newMacro.size();
+            p /= macro.size();
 
             Log(depth, [&]()
                 {
                     return "  case " + std::to_string(static_cast<int>(m)) +
-                        " (p=" + std::to_string(p) + "):";
+                        " (p=" + to_string(p) + "):";
                 });
             auto pf = Fork(newMacro, depth + 1);
             p0 += p * pf;
@@ -127,7 +128,7 @@ double BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
 
     Log(depth, [&]()
     {
-        return "Join #" + std::to_string(id) + ": p=" + std::to_string(p0);
+        return "Join #" + std::to_string(id) + ": p=" + to_string(p0);
     });
 
     return p0;
