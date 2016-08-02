@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +50,7 @@
     <Compile Include="ConfigInfQueue.cs" />
     <Compile Include="ConstMineInfQueue.cs" />
     <Compile Include="ConstProbInfQueue.cs" />
+    <Compile Include="DllInterface.cs" />
     <Compile Include="IInfQueue.cs" />
     <Compile Include="MergedInfQueue.cs" />
     <Compile Include="MineBundle.cs" />
@@ -58,7 +60,12 @@
     <Compile Include="Scheduler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(SolutionDir)$(PlatformName)\$(ConfigurationName)\MW1D.exe">
+    <None Include="$(SolutionDir)$(PlatformName)\$(ConfigurationName)\MW1D.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(SolutionDir)$(PlatformName)\$(ConfigurationName)\MW1D.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

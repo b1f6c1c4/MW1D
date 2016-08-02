@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace MWScheduler
 {
@@ -18,6 +17,21 @@ namespace MWScheduler
         public override string ToString() => $"{Numerator}/{Denominator}";
     }
 
+    public class LongRational
+    {
+        public LongRational(long numerator, long denominator)
+        {
+            Numerator = numerator;
+            Denominator = denominator;
+        }
+
+        public long Numerator { get; set; }
+
+        public long Denominator { get; set; }
+
+        public override string ToString() => $"{Numerator}/{Denominator}";
+    }
+
     public class Config
     {
         public int Width { get; set; }
@@ -32,31 +46,12 @@ namespace MWScheduler
 
         public TimeSpan Elapsed { get; set; }
 
+        public LongRational Result { get; set; }
+
         private string Argument =>
             UseTotalMines
                 ? $"{Width} {TotalMines} {Strategy}"
                 : $"{Width} {Probability} {Strategy}";
-
-        public string Invoke(string fn)
-        {
-            var proc =
-                new Process
-                    {
-                        StartInfo =
-                            new ProcessStartInfo
-                                {
-                                    FileName = fn,
-                                    Arguments = Argument,
-                                    UseShellExecute = false,
-                                    RedirectStandardOutput = true,
-                                    CreateNoWindow = true
-                                }
-                    };
-            proc.Start();
-            var res = proc.StandardOutput.ReadToEnd();
-            Elapsed = proc.ExitTime.Subtract(proc.StartTime);
-            return res;
-        }
 
         public override string ToString() => $"{Argument} : {Elapsed:g}";
 

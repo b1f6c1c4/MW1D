@@ -7,8 +7,6 @@ namespace MWScheduler
     {
         private static void Main(string[] args)
         {
-            var exePath = AppDomain.CurrentDomain.BaseDirectory + @"MW1D.exe";
-
             var cmp = new BoundedComparer(2);
 
             var probs =
@@ -38,26 +36,26 @@ namespace MWScheduler
                     };
 
             sch.OnPop += cfg => Console.WriteLine($"Started {cfg}");
-            sch.OnWork += cfg => Operate(cfg, exePath);
+            sch.OnWork += Operate;
 
             sch.Start();
             sch.WaitAll();
         }
 
-        private static void Operate(Config cfg, string exePath)
+        private static void Operate(Config cfg)
         {
             if (LoadCache(cfg))
                 return;
 
-            var res = cfg.Invoke(exePath);
-            SaveCache(cfg, res);
+            cfg.Process();
+            SaveCache(cfg);
         }
 
-        private static void SaveCache(Config cfg, string res)
+        private static void SaveCache(Config cfg)
         {
             using (var sw = new StreamWriter(cfg.GetFileName()))
             {
-                sw.WriteLine(res);
+                sw.WriteLine(cfg.Result);
                 sw.WriteLine(cfg.Elapsed.Ticks);
             }
         }

@@ -1,12 +1,13 @@
 #include "stdafx.h"
-#include "BaseSolver.h"
-#include "SingleSolver.h"
-#include "FullSolver.h"
-#include "OptimalSolver.h"
+#include "main.h"
 #include <iostream>
 #include <string>
 #include <limits>
 #include <chrono>
+#include "BaseSolver.h"
+#include "SingleSolver.h"
+#include "FullSolver.h"
+#include "OptimalSolver.h"
 #include "MicroSetBuilder.h"
 #include "TotalMinesBuilder.h"
 #include "MineSweeper.h"
@@ -90,6 +91,32 @@ Verbosity ParseVerbosity(const char *str)
     throw std::runtime_error("format error");
 }
 
+#ifdef MW1D_DLL
+extern "C"
+{
+    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, __int64 *num, __int64 *den)
+    {
+        auto builder = std::make_shared<TotalMinesBuilder>(n, m);
+        auto slv = ParseSolver(solver);
+        MineSweeper mw(builder, slv);
+        mw.Run();
+        *num = mw.GetResult().numerator();
+        *den = mw.GetResult().denominator();
+    }
+
+    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, __int64 *num, __int64 *den)
+    {
+        prob p = pN;
+        p /= pD;
+        auto builder = std::make_shared<ProbabilityBuilder>(n, p);
+        auto slv = ParseSolver(solver);
+        MineSweeper mw(builder, slv);
+        mw.Run();
+        *num = mw.GetResult().numerator();
+        *den = mw.GetResult().denominator();
+    }
+}
+#else
 int main(int argc, char **argv)
 {
     if (argc != 4 && argc != 5)
@@ -157,3 +184,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+#endif

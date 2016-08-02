@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include "boost/rational.hpp"
 
 #ifdef _DEBUG
 #define ASSERT(val) do { if (!(val)) throw; } while (false)
@@ -6,8 +8,11 @@
 #define ASSERT(val)
 #endif
 
-#include <vector>
-#include "boost/rational.hpp"
+#ifdef MW1D_DLL
+#define DLL_API __declspec(dllexport)
+#else
+#define DLL_API __declspec(dllimport)
+#endif
 
 #define UNCERTAIN static_cast<size_t>(-1)
 
