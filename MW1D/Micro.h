@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <functional>
 #include <memory>
+#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 class Micro
 {
@@ -34,6 +35,9 @@ public:
     MicroSet(const MicroSet &other);
     MicroSet(const MicroSet &other, filter_t filter);
     virtual ~MicroSet();
+
+    Micro &operator=(const Micro &) = delete;
+    NO_MOVE(MicroSet);
 
     size_t size() const;
     std::vector<Micro>::const_iterator begin() const;

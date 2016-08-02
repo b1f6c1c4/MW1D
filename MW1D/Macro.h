@@ -12,6 +12,9 @@ public:
     Macro(const Macro &other, size_t id, block_t m);
     ~Macro();
 
+    NO_COPY(Macro);
+    NO_MOVE(Macro);
+
     size_t GetWidth() const;
     bool IsOpen(size_t id) const;
 

@@ -3,6 +3,7 @@
 #include "Macro.h"
 #include <string>
 #include <atomic>
+#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 #define UNKNOWN static_cast<block_t>(-2)
 
@@ -13,6 +14,9 @@ public:
     ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m);
     ~ExtendedMacro();
 
+    NO_COPY(ExtendedMacro);
+    NO_MOVE(ExtendedMacro);
+
     double Prob;
     std::vector<block_t> Info;
 };
@@ -22,6 +26,9 @@ class BasicSolver
 public:
     explicit BasicSolver(size_t n, size_t m);
     virtual ~BasicSolver();
+
+    NO_COPY(BasicSolver);
+    NO_MOVE(BasicSolver);
 
     size_t GetForks() const;
 
