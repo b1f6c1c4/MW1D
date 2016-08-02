@@ -5,7 +5,7 @@
 class FullSolver : public BasicSolver
 {
 public:
-    explicit FullSolver(size_t n, size_t m);
+    FullSolver(std::shared_ptr<ExtendedMacro> root, size_t m);
     ~FullSolver();
 
 protected:

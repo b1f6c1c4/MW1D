@@ -151,18 +151,24 @@
     <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Micro.cpp" />
+    <ClCompile Include="MicroSetBuilder.cpp" />
     <ClCompile Include="OptimalSolver.cpp" />
+    <ClCompile Include="ProbabilityBuilder.cpp" />
     <ClCompile Include="SingleSolver.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="TotalMinesBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="FullSolver.h" />
     <ClInclude Include="Macro.h" />
+    <ClInclude Include="MicroSetBuilder.h" />
     <ClInclude Include="Micro.h" />
     <ClInclude Include="OptimalSolver.h" />
+    <ClInclude Include="ProbabilityBuilder.h" />
     <ClInclude Include="SingleSolver.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TotalMinesBuilder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

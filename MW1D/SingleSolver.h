@@ -5,7 +5,7 @@
 class SingleSolver : public BasicSolver
 {
 public:
-    explicit SingleSolver(size_t n, size_t m);
+    SingleSolver(std::shared_ptr<ExtendedMacro> root, size_t m);
     ~SingleSolver();
 
 protected:

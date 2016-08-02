@@ -10,6 +10,8 @@
 #include <condition_variable>
 #include <chrono>
 #include <atomic>
+#include "MicroSetBuilder.h"
+#include "TotalMinesBuilder.h"
 
 void WriteUsage()
 {
@@ -68,6 +70,7 @@ int main(int argc, char **argv)
             return 0;
         }
 
+    std::unique_ptr<MicroSetBuilder> builder;
     size_t n, m;
     try
     {
@@ -78,6 +81,7 @@ int main(int argc, char **argv)
         n = std::stoul(argv[1]);
         m = std::stoul(argv[2]);
 #endif
+        builder = std::make_unique<TotalMinesBuilder>(n, m);
     }
     catch (...)
     {
@@ -85,20 +89,23 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    std::shared_ptr<ExtendedMacro> root = std::make_shared<ExtendedMacro>(n);
+    builder->Build(*root);
+
     std::string strategyName;
     if (strcmp(argv[3], "sl") == 0)
     {
-        slv = std::make_unique<SingleSolver>(n, m);
+        slv = std::make_unique<SingleSolver>(root, m);
         strategyName = "Single Strategy";
     }
     else if (strcmp(argv[3], "fl") == 0)
     {
-        slv = std::make_unique<FullSolver>(n, m);
+        slv = std::make_unique<FullSolver>(root, m);
         strategyName = "Full Logic - Lowest Probability";
     }
     else if (strcmp(argv[3], "op") == 0)
     {
-        slv = std::make_unique<OptimalSolver>(n, m);
+        slv = std::make_unique<OptimalSolver>(root, m);
         strategyName = "Optimal";
     }
     else

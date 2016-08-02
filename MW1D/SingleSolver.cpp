@@ -2,7 +2,7 @@
 #include "SingleSolver.h"
 #include <sstream>
 
-SingleSolver::SingleSolver(size_t n, size_t m) : BasicSolver(n, m) { }
+SingleSolver::SingleSolver(std::shared_ptr<ExtendedMacro> root, size_t m) : BasicSolver(root, m) { }
 
 SingleSolver::~SingleSolver() { }
 

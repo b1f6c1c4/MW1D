@@ -5,7 +5,7 @@
 class OptimalSolver : public BasicSolver
 {
 public:
-    explicit OptimalSolver(size_t n, size_t m);
+    OptimalSolver(std::shared_ptr<ExtendedMacro> root, size_t m);
     ~OptimalSolver();
 
 protected:

@@ -2,47 +2,6 @@
 #include "BasicSolver.h"
 #include <iostream>
 
-template <typename T>
-void First(T &set, size_t n, size_t m)
-{
-    set.resize(n, false);
-    for (auto i = n - m; i < n; i++)
-        set[i] = true;
-}
-
-template <typename T>
-bool Next(T &set)
-{
-    auto cntM = 0;
-    while (cntM < set.size())
-    {
-        if (!set[cntM])
-            break;
-        cntM++;
-    }
-
-    auto id = cntM;
-    while (id < set.size())
-    {
-        if (set[id])
-            break;
-        id++;
-    }
-
-    if (id == set.size())
-        return false;
-
-    set[id] = false;
-
-    for (auto i = 0; i < cntM; i++)
-        set[i] = false;
-
-    for (auto i = id - 1 - cntM; i < id; i++)
-        set[i] = true;
-
-    return true;
-}
-
 ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(-1), Info(width, UNKNOWN) { }
 
 ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) : Macro(other, id, m), Prob(-1), Info(other.Info)
@@ -52,21 +11,7 @@ ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) :
 
 ExtendedMacro::~ExtendedMacro() { }
 
-BasicSolver::BasicSolver(size_t n, size_t m) : m_Root(std::make_unique<ExtendedMacro>(n)), m_M(m), m_Forks(0), m_Verbose(false)
-{
-    Micro micro;
-    First(micro, n, m);
-    while (true)
-    {
-        Micro microT;
-        microT.DeepClone(micro);
-        microT.SetProb(1);
-        m_Root->Emplace(microT);
-
-        if (!Next(micro))
-            break;
-    }
-}
+BasicSolver::BasicSolver(std::shared_ptr<ExtendedMacro> root, size_t m) : m_Root(root), m_M(m), m_Forks(0), m_Verbose(false) { }
 
 BasicSolver::~BasicSolver() { }
 
@@ -105,9 +50,9 @@ prob BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
     block_t lst[] = {0, 1, 2};
 
     Log(depth, [&]()
-    {
-        return "Fork #" + std::to_string(id) + ":";
-    });
+        {
+            return "Fork #" + std::to_string(id) + ":";
+        });
 
     for (auto m : lst)
     {
@@ -129,9 +74,9 @@ prob BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
     p0 /= macro.GetTotalProb();
 
     Log(depth, [&]()
-    {
-        return "Join #" + std::to_string(id) + ": p=" + to_string(p0);
-    });
+        {
+            return "Join #" + std::to_string(id) + ": p=" + to_string(p0);
+        });
 
     return p0;
 }
