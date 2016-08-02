@@ -1,18 +1,25 @@
 #include "stdafx.h"
 #include "ProbabilityBuilder.h"
 
-ProbabilityBuilder::ProbabilityBuilder(size_t n, prob p) : m_N(n), m_P(p) { }
+ProbabilityBuilder::ProbabilityBuilder(size_t n, prob p) : MicroSetBuilder(n), m_P(p) { }
 
 ProbabilityBuilder::~ProbabilityBuilder() { }
 
+size_t ProbabilityBuilder::GetM() const
+{
+    return UNCERTAIN;
+}
+
 void ProbabilityBuilder::First(Micro &set)
 {
-    set.resize(m_N, false);
+    auto n = GetN();
+    set.resize(n, false);
 }
 
 bool ProbabilityBuilder::Next(Micro &set)
 {
-    for (auto i = 0; i < m_N; i++)
+    auto n = GetN();
+    for (auto i = 0; i < n; i++)
         if (set[i])
             set[i] = 0;
         else
@@ -26,8 +33,9 @@ bool ProbabilityBuilder::Next(Micro &set)
 
 prob ProbabilityBuilder::CalcProb(const Micro &set)
 {
+    auto n = GetN();
     prob p = 1;
-    for (auto i = 0; i < m_N; i++)
+    for (auto i = 0; i < n; i++)
         if (set[i])
             p *= m_P;
         else

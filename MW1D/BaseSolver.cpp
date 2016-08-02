@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "BasicSolver.h"
+#include "BaseSolver.h"
 #include <iostream>
 
 ExtendedMacro::ExtendedMacro(size_t width) : Macro(width), Prob(-1), Info(width, UNKNOWN) { }
@@ -11,39 +11,45 @@ ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) :
 
 ExtendedMacro::~ExtendedMacro() { }
 
-BasicSolver::BasicSolver(std::shared_ptr<ExtendedMacro> root, size_t m) : m_Root(root), m_M(m), m_Forks(0), m_Verbose(false) { }
+BaseSolver::BaseSolver() : m_Root(nullptr), m_M(UNCERTAIN), m_Forks(0), m_Verbose(false) { }
 
-BasicSolver::~BasicSolver() { }
+BaseSolver::~BaseSolver() { }
 
-size_t BasicSolver::GetForks() const
+size_t BaseSolver::GetForks() const
 {
     return m_Forks.load();
 }
 
-void BasicSolver::IncrementForks()
+void BaseSolver::LoadData(std::shared_ptr<ExtendedMacro> root, size_t m)
+{
+    m_Root = root;
+    m_M = m;
+}
+
+void BaseSolver::IncrementForks()
 {
     ++m_Forks;
 }
 
-void BasicSolver::Log(size_t depth, std::string &&str) const
+void BaseSolver::Log(size_t depth, std::string &&str) const
 {
     if (m_Verbose)
         std::cout << std::string(depth, '\t') << str << std::endl;
 }
 
-void BasicSolver::Log(size_t depth, std::function<std::string()> strFunction) const
+void BaseSolver::Log(size_t depth, std::function<std::string()> strFunction) const
 {
     if (m_Verbose)
         std::cout << std::string(depth, '\t') << strFunction() << std::endl;
 }
 
-prob BasicSolver::Solve(bool verbose)
+prob BaseSolver::Solve(bool verbose)
 {
     m_Verbose = verbose;
     return Fork(*m_Root, 0);
 }
 
-prob BasicSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
+prob BaseSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
 {
     prob p0 = 0;
 

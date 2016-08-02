@@ -1,14 +1,20 @@
 #include "stdafx.h"
 #include "TotalMinesBuilder.h"
 
-TotalMinesBuilder::TotalMinesBuilder(size_t n, size_t m) : m_N(n), m_M(m) { }
+TotalMinesBuilder::TotalMinesBuilder(size_t n, size_t m) : MicroSetBuilder(n), m_M(m) { }
 
 TotalMinesBuilder::~TotalMinesBuilder() { }
 
+size_t TotalMinesBuilder::GetM() const
+{
+    return m_M;
+}
+
 void TotalMinesBuilder::First(Micro &set)
 {
-    set.resize(m_N, false);
-    for (auto i = m_N - m_M; i < m_N; i++)
+    auto n = GetN();
+    set.resize(n, false);
+    for (auto i = n - m_M; i < n; i++)
         set[i] = true;
 }
 

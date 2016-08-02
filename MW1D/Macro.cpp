@@ -10,7 +10,7 @@ Macro::Macro(const Macro &other, size_t id, block_t m) : MicroSet(other, std::bi
 
 Macro::~Macro() { }
 
-size_t Macro::GetWidth() const
+size_t Macro::GetN() const
 {
     return m_Width;
 }

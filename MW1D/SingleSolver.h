@@ -1,11 +1,11 @@
 #pragma once
 #include "stdafx.h"
-#include "BasicSolver.h"
+#include "BaseSolver.h"
 
-class SingleSolver : public BasicSolver
+class SingleSolver : public BaseSolver
 {
 public:
-    SingleSolver(std::shared_ptr<ExtendedMacro> root, size_t m);
+    SingleSolver();
     ~SingleSolver();
 
 protected:

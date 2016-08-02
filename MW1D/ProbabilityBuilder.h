@@ -12,12 +12,13 @@ public:
     NO_COPY(ProbabilityBuilder);
     NO_MOVE(ProbabilityBuilder);
 
+    size_t GetM() const override;
+
 protected:
     void First(Micro &set) override;
     bool Next(Micro &set) override;
     prob CalcProb(const Micro &set) override;
 
 private:
-    size_t m_N;
     prob m_P;
 };

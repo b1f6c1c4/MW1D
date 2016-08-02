@@ -2,13 +2,13 @@
 #include "SingleSolver.h"
 #include <sstream>
 
-SingleSolver::SingleSolver(std::shared_ptr<ExtendedMacro> root, size_t m) : BasicSolver(root, m) { }
+SingleSolver::SingleSolver() { }
 
 SingleSolver::~SingleSolver() { }
 
 prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
-    auto last = macro.GetWidth() - 1;
+    auto last = macro.GetN() - 1;
 
     Log(depth, [&]()
         {
@@ -29,7 +29,7 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
         });
 
     auto isLogic = true;
-    auto toFork = macro.GetWidth();
+    auto toFork = macro.GetN();
 
     while (isLogic)
     {
@@ -153,14 +153,17 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
             if (macro.Info[i] == MINE)
                 cntM++;
         }
-        if (cntM == m_M)
-            return 1;
-        if (cntM + cntU == m_M)
-            return 1;
+        if (m_M != UNCERTAIN)
+        {
+            if (cntM == m_M)
+                return 1;
+            if (cntM + cntU == m_M)
+                return 1;
+        }
     }
 
-    if (toFork < macro.GetWidth())
-        return BasicSolver::Fork(macro, toFork, depth);
+    if (toFork < macro.GetN())
+        return BaseSolver::Fork(macro, toFork, depth);
 
     IncrementForks();
 
@@ -171,7 +174,7 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
         if (macro.Info[i] != UNKNOWN)
             continue;
 
-        p += BasicSolver::Fork(macro, i, depth);
+        p += BaseSolver::Fork(macro, i, depth);
         cnt++;
     }
 

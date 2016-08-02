@@ -27,9 +27,6 @@
     <ClCompile Include="OptimalSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BasicSolver.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SingleSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -48,6 +45,12 @@
     <ClCompile Include="ProbabilityBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BaseSolver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MineSweeper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -60,9 +63,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="OptimalSolver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SingleSolver.h">
@@ -78,6 +78,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ProbabilityBuilder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MineSweeper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

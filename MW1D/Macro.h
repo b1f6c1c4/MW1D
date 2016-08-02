@@ -15,7 +15,7 @@ public:
     NO_COPY(Macro);
     NO_MOVE(Macro);
 
-    size_t GetWidth() const;
+    size_t GetN() const;
     bool IsOpen(size_t id) const;
 
 private:

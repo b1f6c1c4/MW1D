@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MicroSetBuilder.h"
 
-MicroSetBuilder::MicroSetBuilder() { }
+MicroSetBuilder::MicroSetBuilder(size_t n) : m_N(n) { }
 
 MicroSetBuilder::~MicroSetBuilder() { }
 
@@ -19,4 +19,9 @@ void MicroSetBuilder::Build(MicroSet &set)
         if (!Next(micro))
             break;
     }
+}
+
+size_t MicroSetBuilder::GetN() const
+{
+    return m_N;
 }

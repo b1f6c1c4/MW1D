@@ -6,7 +6,6 @@
 #include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 #define UNKNOWN static_cast<block_t>(-2)
-#define UNCERTAIN static_cast<size_t>(-1)
 
 class ExtendedMacro : public Macro
 {
@@ -22,17 +21,18 @@ public:
     std::vector<block_t> Info;
 };
 
-class BasicSolver
+class BaseSolver
 {
 public:
-    BasicSolver(std::shared_ptr<ExtendedMacro> root, size_t m);
-    virtual ~BasicSolver();
+    BaseSolver();
+    virtual ~BaseSolver();
 
-    NO_COPY(BasicSolver);
-    NO_MOVE(BasicSolver);
+    NO_COPY(BaseSolver);
+    NO_MOVE(BaseSolver);
 
     size_t GetForks() const;
 
+    void LoadData(std::shared_ptr<ExtendedMacro> root, size_t m);
     prob Solve(bool verbose = false);
 
 protected:

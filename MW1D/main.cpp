@@ -1,52 +1,35 @@
 #include "stdafx.h"
-#include "BasicSolver.h"
+#include "BaseSolver.h"
 #include "SingleSolver.h"
 #include "FullSolver.h"
 #include "OptimalSolver.h"
 #include <iostream>
 #include <string>
 #include <limits>
-#include <thread>
-#include <condition_variable>
 #include <chrono>
-#include <atomic>
 #include "MicroSetBuilder.h"
 #include "TotalMinesBuilder.h"
+#include "MineSweeper.h"
+
+using namespace std::chrono_literals;
 
 void WriteUsage()
 {
-    std::cout << "Usage: MW1D <N> <M> <STRATEGY> [-v | -vv]" << std::endl;
-    std::cout << "Return:" << std::endl;
-    std::cout << "  The probability of winning a 1xN Minesweeper game with the specified strategy" << std::endl;
-    std::cout << "  Attention: One may lose on the first click" << std::endl;
+    std::cout << R"(Usage: MW1D <N> <M> <STRATEGY> [-v | -vv]
+Return:
+  The probability of winning a 1xN Minesweeper game with the specified strategy
+  Attention: One may lose on the first click
     std::cout << std::endl;
-    std::cout << "Parameters:" << std::endl;
-    std::cout << "  <N> : length of board" << std::endl;
-    std::cout << "  <M> : number of mines" << std::endl;
-    std::cout << "  <STRATEGY> : one of the following:" << std::endl;
-    std::cout << "    - sl: Single Logic" << std::endl;
-    std::cout << "    - fl: Full Logic - Lowest Probability" << std::endl;
-    std::cout << "    - op: Optimal" << std::endl;
-    std::cout << "Options:" << std::endl;
-    std::cout << "  -v : verbose " << std::endl;
-    std::cout << "  -vv : more verbose " << std::endl;
-}
-
-std::unique_ptr<BasicSolver> slv;
-std::mutex mtx;
-std::condition_variable cv;
-std::atomic_bool finished;
-prob result;
-
-void WorkerThreadEntry(bool mv)
-{
-    result = slv->Solve(mv);
-
-    {
-        std::lock_guard<std::mutex> lock(mtx);
-        finished.store(true);
-        cv.notify_all();
-    }
+Parameters:
+  <N> : length of board
+  <M> : number of mines
+  <STRATEGY> : one of the following:
+    - sl: Single Logic
+    - fl: Full Logic - Lowest Probability
+    - op: Optimal
+Options:
+  -v : verbose 
+  -vv : more verbose )" << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -70,7 +53,7 @@ int main(int argc, char **argv)
             return 0;
         }
 
-    std::unique_ptr<MicroSetBuilder> builder;
+    std::shared_ptr<MicroSetBuilder> builder;
     size_t n, m;
     try
     {
@@ -81,7 +64,7 @@ int main(int argc, char **argv)
         n = std::stoul(argv[1]);
         m = std::stoul(argv[2]);
 #endif
-        builder = std::make_unique<TotalMinesBuilder>(n, m);
+        builder = std::make_shared<TotalMinesBuilder>(n, m);
     }
     catch (...)
     {
@@ -89,23 +72,21 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::shared_ptr<ExtendedMacro> root = std::make_shared<ExtendedMacro>(n);
-    builder->Build(*root);
-
+    std::shared_ptr<BaseSolver> slv;
     std::string strategyName;
     if (strcmp(argv[3], "sl") == 0)
     {
-        slv = std::make_unique<SingleSolver>(root, m);
+        slv = std::make_unique<SingleSolver>();
         strategyName = "Single Strategy";
     }
     else if (strcmp(argv[3], "fl") == 0)
     {
-        slv = std::make_unique<FullSolver>(root, m);
+        slv = std::make_unique<FullSolver>();
         strategyName = "Full Logic - Lowest Probability";
     }
     else if (strcmp(argv[3], "op") == 0)
     {
-        slv = std::make_unique<OptimalSolver>(root, m);
+        slv = std::make_unique<OptimalSolver>();
         strategyName = "Optimal";
     }
     else
@@ -119,39 +100,12 @@ int main(int argc, char **argv)
         std::cout << "Solving 1x" << n << " Minesweeper game ";
         std::cout << "using strategy " << strategyName << std::endl;
     }
-    finished.store(false);
 
-    {
-        std::unique_lock<std::mutex> lock(mtx);
-
-        std::thread worker(WorkerThreadEntry, moreVerbose);
-
-        if (verbose)
-            while (true)
-            {
-                using namespace std::chrono_literals;
-                auto res = cv.wait_for(lock, 200ms, [&]()
-                                       {
-                                           return finished.load();
-                                       });
-
-                std::cout << '\r' << slv->GetForks() << " forks" << std::flush;
-                if (res)
-                    break;
-            }
-        else
-        {
-            lock.unlock();
-        }
-
-        worker.join();
-    }
-
-
+    MineSweeper mw(builder, slv);
     if (verbose)
-        std::cout << std::endl << "Done" << std::endl;
-
-    slv.reset();
+        mw.RunAsync(200ms);
+    else
+        mw.Run(moreVerbose);
 
     if (verbose)
     {
@@ -159,7 +113,7 @@ int main(int argc, char **argv)
         std::cout << strategyName << " is:" << std::endl;
     }
     std::cout.precision(std::numeric_limits<prob>::max_digits10);
-    std::cout << std::fixed << result;
+    std::cout << std::fixed << mw.GetResult();
     std::cout << std::endl;
 
     return 0;

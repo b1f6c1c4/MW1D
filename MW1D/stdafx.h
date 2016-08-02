@@ -9,6 +9,8 @@
 #include <vector>
 #include "boost/rational.hpp"
 
+#define UNCERTAIN static_cast<size_t>(-1)
+
 typedef std::vector<bool> bits;
 typedef std::vector<bool>::reference bit_reference;
 typedef std::vector<bool>::const_reference bit_const_reference;

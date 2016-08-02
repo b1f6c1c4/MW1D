@@ -146,12 +146,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BasicSolver.cpp" />
+    <ClCompile Include="BaseSolver.cpp" />
     <ClCompile Include="FullSolver.cpp" />
     <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Micro.cpp" />
     <ClCompile Include="MicroSetBuilder.cpp" />
+    <ClCompile Include="MineSweeper.cpp" />
     <ClCompile Include="OptimalSolver.cpp" />
     <ClCompile Include="ProbabilityBuilder.cpp" />
     <ClCompile Include="SingleSolver.cpp" />
@@ -159,11 +160,12 @@
     <ClCompile Include="TotalMinesBuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BasicSolver.h" />
+    <ClInclude Include="BaseSolver.h" />
     <ClInclude Include="FullSolver.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="MicroSetBuilder.h" />
     <ClInclude Include="Micro.h" />
+    <ClInclude Include="MineSweeper.h" />
     <ClInclude Include="OptimalSolver.h" />
     <ClInclude Include="ProbabilityBuilder.h" />
     <ClInclude Include="SingleSolver.h" />
