@@ -14,10 +14,11 @@ namespace MWScheduler
 
         private readonly List<Thread> m_Threads;
 
-        public IInfQueue<T> TheQueue { get; set; }
+        private readonly IInfQueue<T> m_TheQueue;
 
-        public Scheduler(int n)
+        public Scheduler(int n, IInfQueue<T> theQueue)
         {
+            m_TheQueue = theQueue;
             m_Threads = new List<Thread>();
             for (var i = 0; i < n; i++)
                 m_Threads.Add(new Thread(WorkerThreadEntryPoint));
@@ -39,10 +40,10 @@ namespace MWScheduler
         {
             while (true)
             {
-                var obj = TheQueue.Lock();
+                var obj = m_TheQueue.Lock();
                 OnLock?.Invoke(obj);
                 OnWork?.Invoke(obj);
-                if (TheQueue.Pop(obj))
+                if (m_TheQueue.Pop(obj))
                     OnPop?.Invoke(obj);
             }
         }

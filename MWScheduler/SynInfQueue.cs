@@ -9,6 +9,8 @@
 
         public SynInfQueue(IInfQueue<T> baseQueue) { m_BaseQueue = baseQueue; }
 
+        public static SynInfQueue<T> Syncronize(IInfQueue<T> queue) => new SynInfQueue<T>(queue);
+
         public T Top
         {
             get

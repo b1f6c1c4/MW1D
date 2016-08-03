@@ -59,7 +59,7 @@
     <Compile Include="ProbBundle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Restful.cs" />
+    <Compile Include="RestfulSerialization.cs" />
     <Compile Include="RestfulInfQueueClient.cs" />
     <Compile Include="RestfulInfQueueServer.cs" />
     <Compile Include="Scheduler.cs" />

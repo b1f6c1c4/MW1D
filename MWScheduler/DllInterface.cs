@@ -34,7 +34,7 @@ namespace MWScheduler
                                cfg.Strategy,
                                filePath);
             stopwatch.Stop();
-            cfg.Elapsed = stopwatch.Elapsed;
+            cfg.Elapsed = stopwatch.ElapsedTicks;
         }
     }
 }

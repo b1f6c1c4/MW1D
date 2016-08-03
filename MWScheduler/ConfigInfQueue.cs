@@ -38,7 +38,7 @@ namespace MWScheduler
                 return false;
 
             Prev2T = Prev1T;
-            Prev1T = m_Top.Elapsed.Ticks;
+            Prev1T = m_Top.Elapsed;
             m_Top = GenerateOne();
             m_Locked = false;
             return true;
@@ -47,9 +47,10 @@ namespace MWScheduler
         protected virtual Config GenerateEmptyOne()
             => new Config
                    {
+                       Token = Guid.NewGuid(),
                        Width = Width++,
                        Strategy = Strategy,
-                       Elapsed = new TimeSpan(1)
+                       Elapsed = 1
                    };
 
         private Config GenerateOne()
@@ -60,12 +61,12 @@ namespace MWScheduler
                 Prev2T.HasValue)
             {
                 var ticks = Prev1T.Value * Prev1T.Value / Prev2T.Value;
-                config.Elapsed = new TimeSpan(ticks);
+                config.Elapsed = ticks;
             }
             else if (Prev1T.HasValue)
             {
                 var ticks = Prev1T.Value * config.Width;
-                config.Elapsed = new TimeSpan(ticks);
+                config.Elapsed = ticks;
             }
 
             return config;

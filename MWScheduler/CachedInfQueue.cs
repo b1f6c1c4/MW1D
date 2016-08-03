@@ -10,8 +10,6 @@ namespace MWScheduler
         public event EventHandler OnSkipping;
         public event EventHandler OnPop;
 
-        private readonly object m_Lock = new object();
-
         public string BaseDir { get; set; }
 
         private readonly IInfQueue<T> m_BaseQueue;
@@ -22,33 +20,24 @@ namespace MWScheduler
         {
             get
             {
-                lock (m_Lock)
-                {
-                    Check();
-                    return m_BaseQueue.Top;
-                }
+                Check();
+                return m_BaseQueue.Top;
             }
         }
 
         public T Lock()
         {
-            lock (m_Lock)
-            {
-                Check();
-                return m_BaseQueue.Lock();
-            }
+            Check();
+            return m_BaseQueue.Lock();
         }
 
         public bool Pop(T obj)
         {
-            lock (m_Lock)
-            {
-                Check();
-                var res = m_BaseQueue.Pop(obj);
-                if (res)
-                    OnPop?.Invoke(Path.Combine(BaseDir, obj.FileName), obj);
-                return res;
-            }
+            Check();
+            var res = m_BaseQueue.Pop(obj);
+            if (res)
+                OnPop?.Invoke(Path.Combine(BaseDir, obj.FileName), obj);
+            return res;
         }
 
         private string TopFileName =>

@@ -34,7 +34,7 @@ namespace MWScheduler
                                 IncreaseMines = !m_CriticalQueue.IncreaseMines,
                                 TotalMines = m_CriticalQueue.TotalMines,
                                 Strategy = m_CriticalQueue.Strategy,
-                                Prev1T = m_CriticalQueue.Top.Elapsed.Ticks,
+                                Prev1T = m_CriticalQueue.Top.Elapsed,
                                 Prev2T = null
                             };
             if (!m_CriticalQueue.IncreaseMines)
