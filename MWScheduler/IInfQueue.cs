@@ -1,9 +1,12 @@
 ﻿namespace MWScheduler
 {
-    public interface IInfQueue<out T>
+    public interface IInfQueue<T>
+        where T : class
     {
         T Top { get; }
 
-        T Pop();
+        T Lock();
+
+        bool Pop(T obj);
     }
 }

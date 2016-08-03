@@ -20,64 +20,66 @@ namespace MWScheduler
                         new Rational(1, 64)
                     };
 
-            var sch =
-                new Scheduler<Config>(Environment.ProcessorCount)
+            var root =
+                new MergedInfQueue<Config>(cmp)
                     {
-                        TheQueue =
-                            new MergedInfQueue<Config>(cmp)
-                                {
-                                    new MineBundle(cmp, 4, 2, "op"),
-                                    new MineBundle(cmp, 4, 2, "sl"),
-                                    new MineBundle(cmp, 4, 2, "fl"),
-                                    new ProbBundle(cmp, probs, "op", true),
-                                    new ProbBundle(cmp, probs, "sl", true),
-                                    new ProbBundle(cmp, probs, "fl", true)
-                                }
+                        new MineBundle(cmp, 4, 2, "op"),
+                        new MineBundle(cmp, 4, 2, "sl"),
+                        new MineBundle(cmp, 4, 2, "fl"),
+                        new ProbBundle(cmp, probs, "op", true),
+                        new ProbBundle(cmp, probs, "sl", true),
+                        new ProbBundle(cmp, probs, "fl", true)
                     };
 
-            sch.OnPop += cfg => Console.WriteLine($"Started {cfg}");
-            sch.OnWork += Operate;
+            const string baseDir = @"db/";
 
-            Directory.CreateDirectory("db");
+            var cached = new CachedInfQueue<Config>(root) { BaseDir = baseDir };
+            cached.OnSkipping += LoadCache;
+            cached.OnPop += SaveCache;
+
+#if DEBUG
+            var threads = 1;
+#else
+            var threads = Environment.ProcessorCount;
+#endif
+
+            var sch =
+                new Scheduler<Config>(threads)
+                    {
+                        TheQueue = cached
+                    };
+
+            sch.OnLock += cfg => Console.WriteLine($"Started {cfg}");
+            sch.OnPop += cfg => Console.WriteLine($"\t\t\tDone {cfg}");
+            sch.OnWork += cfg => cfg.Process(baseDir);
+
+            Directory.CreateDirectory(baseDir);
 
             sch.Start();
             sch.WaitAll();
         }
 
-        private static void Operate(Config cfg)
+        private static void SaveCache(string filePath, Config cfg)
         {
-            if (LoadCache(cfg))
-                return;
-
-            cfg.Process();
-            SaveCache(cfg);
-        }
-
-        private static void SaveCache(Config cfg)
-        {
-            using (var sw = new StreamWriter(@"db\" + cfg.GetFileName(), true))
+            using (var sw = new StreamWriter(filePath, true))
             {
                 sw.WriteLine();
                 sw.WriteLine(cfg.Elapsed.Ticks);
             }
         }
 
-        private static bool LoadCache(Config cfg)
+        private static void LoadCache(string filePath, Config cfg)
         {
-            if (!File.Exists(cfg.GetFileName()))
-                return false;
-
-            using (var sr = new StringReader(cfg.GetFileName()))
+            using (var sr = new StringReader(filePath))
             {
                 var sp = sr.ReadToEnd()
                     ?.Split(
                             new[] { Environment.NewLine },
                             StringSplitOptions.RemoveEmptyEntries);
                 if (sp?.Length != 2)
-                    return false;
+                    return;
 
                 cfg.Elapsed = new TimeSpan(Convert.ToInt64(sp[1]));
-                return true;
             }
         }
     }

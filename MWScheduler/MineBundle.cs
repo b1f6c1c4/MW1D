@@ -20,11 +20,13 @@ namespace MWScheduler
             m_CriticalQueue = queue;
         }
 
-        public override Config Pop()
+        public override bool Pop(Config obj)
         {
-            var res = base.Pop();
+            if (!base.Pop(obj))
+                return false;
+
             if (Least != m_CriticalQueue)
-                return res;
+                return true;
 
             var queue = new ConstMineInfQueue
                             {
@@ -40,8 +42,7 @@ namespace MWScheduler
 
             Add(queue);
             m_CriticalQueue = queue;
-
-            return res;
+            return true;
         }
     }
 }

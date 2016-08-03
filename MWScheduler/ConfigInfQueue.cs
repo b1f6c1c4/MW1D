@@ -4,19 +4,21 @@ namespace MWScheduler
 {
     public abstract class ConfigInfQueue : IInfQueue<Config>
     {
+        private bool m_Locked;
         private Config m_Top;
 
         public Config Top
         {
             get
             {
+                if (m_Locked)
+                    return null;
+
                 if (m_Top == null)
-                    Top = GenerateOne();
+                    m_Top = GenerateOne();
 
                 return m_Top;
             }
-
-            private set { m_Top = value; }
         }
 
         public long? Prev1T { get; set; }
@@ -24,13 +26,22 @@ namespace MWScheduler
         public int Width { get; set; }
         public string Strategy { get; set; }
 
-        public Config Pop()
+        public Config Lock()
         {
-            var res = Top;
+            m_Locked = true;
+            return m_Top;
+        }
+
+        public bool Pop(Config obj)
+        {
+            if (!obj.Equals(m_Top))
+                return false;
+
             Prev2T = Prev1T;
-            Prev1T = Top.Elapsed.Ticks;
-            Top = GenerateOne();
-            return res;
+            Prev1T = m_Top.Elapsed.Ticks;
+            m_Top = GenerateOne();
+            m_Locked = false;
+            return true;
         }
 
         protected virtual Config GenerateEmptyOne()

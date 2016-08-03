@@ -4,15 +4,13 @@ using System.Threading;
 namespace MWScheduler
 {
     public class Scheduler<T>
+        where T : class
     {
-        public delegate void PopEventHandler(T obj);
+        public delegate void EventHandler(T obj);
 
-        public delegate void WorkEventHandler(T obj);
-
-        public event PopEventHandler OnPop;
-        public event WorkEventHandler OnWork;
-
-        private readonly object m_Lock = new object();
+        public event EventHandler OnLock;
+        public event EventHandler OnPop;
+        public event EventHandler OnWork;
 
         private readonly List<Thread> m_Threads;
 
@@ -41,13 +39,11 @@ namespace MWScheduler
         {
             while (true)
             {
-                T obj;
-                lock (m_Lock)
-                {
-                    obj = TheQueue.Pop();
-                    OnPop?.Invoke(obj);
-                }
+                var obj = TheQueue.Lock();
+                OnLock?.Invoke(obj);
                 OnWork?.Invoke(obj);
+                if (TheQueue.Pop(obj))
+                    OnPop?.Invoke(obj);
             }
         }
     }

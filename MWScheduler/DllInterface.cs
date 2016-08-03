@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace MWScheduler
@@ -15,9 +16,9 @@ namespace MWScheduler
                                                   [MarshalAs(UnmanagedType.LPStr)] string solver,
                                                   [MarshalAs(UnmanagedType.LPStr)] string filePath);
 
-        public static void Process(this Config cfg)
+        public static void Process(this Config cfg, string baseDir)
         {
-            var filePath = @"db\" + cfg.GetFileName();
+            var filePath = Path.Combine(baseDir, cfg.FileName);
             var stopwatch = Stopwatch.StartNew();
             if (cfg.UseTotalMines)
                 CoreInterfaceT(

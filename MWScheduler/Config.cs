@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace MWScheduler
 {
@@ -17,7 +18,12 @@ namespace MWScheduler
         public override string ToString() => $"{Numerator}/{Denominator}";
     }
 
-    public class Config
+    public interface ICacheable
+    {
+        string FileName { get; }
+    }
+
+    public class Config : ICacheable
     {
         public int Width { get; set; }
 
@@ -38,7 +44,7 @@ namespace MWScheduler
 
         public override string ToString() => $"{Argument} : {Elapsed:g}";
 
-        public string GetFileName() =>
+        public string FileName =>
             UseTotalMines
                 ? $"{Strategy} 1-{Width}-T{TotalMines}.txt"
                 : $"{Strategy} 1-{Width}-P{Probability.ToString().Replace('/', 'o')}.txt";
