@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Net;
+using NDesk.Options;
 
 namespace MWScheduler
 {
@@ -12,60 +12,122 @@ namespace MWScheduler
             const string theBaseDir = @"db/";
             const int defaultPort = 24680;
 
-            Core core = new RationalCore();
+            int? port = null;
+            var bare = false;
+            string ip = null;
+            var help = false;
+            var useRational = false;
 
-            if (args.Length == 0) // stand alone
+            var opt =
+                new OptionSet
+                    {
+                        { "r|rational", "use rational core", v => useRational = v != null },
+                        { "s|server=", "start server listening at {PORT}", (int v) => port = v },
+                        { "b|bare", "don't run core; just listening", v => bare = v != null },
+                        { "c|client=", "connect to server {ENDPOINT}", v => ip = ParseIPEndPoint(v, defaultPort) },
+                        { "h|?|help", "show this message and exit", v => help = v != null }
+                    };
+
+            try
             {
-                const string baseDir = theBaseDir;
-                PrepareDir(baseDir);
-                var root = ConstructRoot();
-                var cached = ConstructCache(root, baseDir);
-                Run(cached, core, baseDir);
+                var extra = opt.Parse(args);
+
+                if (help)
+                {
+                    ShowHelp(opt);
+                    return;
+                }
+
+                if (extra.Count != 0)
+                    throw new ApplicationException("extra command line argument(s):" + string.Join(" ", extra));
+
+                if (!port.HasValue && bare)
+                    throw new ApplicationException("cann't specify --bare without --server");
+
+                if (port.HasValue &&
+                    ip != null)
+                    throw new ApplicationException("cann't --server and --client at the same time");
+
+                if (useRational && bare)
+                    throw new ApplicationException("cann't --bare and --rational at the same time");
+            }
+            catch (Exception e)
+            {
+                Console.Write("MWScheduler: ");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `MWScheduler --help' for more information.");
                 return;
             }
 
-            if (args.Length == 1 &&
-                args[0] == "--server") // stand alone + server
+            try
             {
-                const string baseDir = theBaseDir;
-                PrepareDir(baseDir);
-                var root = ConstructRoot();
-                var cached = ConstructCache(root, baseDir);
-                var server = new RestfulInfQueueServer<Config>(cached, defaultPort);
-                server.OnPop += cfg => DownloadResult(cfg, baseDir);
-                server.Start();
-                Run(cached, core, baseDir);
-                return;
-            }
+                IInfQueue<Config> root;
+                string baseDir;
+                if (ip == null)
+                {
+                    baseDir = theBaseDir;
+                    PrepareDir(baseDir);
 
-            if (args.Length == 2 &&
-                args[0] == "--server" &&
-                args[1] == "--bare") // server
+                    root = ConstructRoot();
+                    root = ConstructCache(root, baseDir);
+
+                    if (port != null)
+                    {
+                        var server = ConstructServer(root, port.Value, baseDir);
+                        server.Start();
+                    }
+                }
+                else
+                {
+                    baseDir = "";
+
+                    root = ConstructRemote(ip, baseDir);
+                    root = SynInfQueue<Config>.Syncronize(root);
+                }
+
+                if (!bare)
+                {
+                    Core core;
+
+                    if (useRational)
+                        core = new RationalCore();
+                    else
+                        core = new DoubleCore();
+
+                    Run(root, core, baseDir);
+                }
+                else
+                    Console.Read();
+            }
+            catch (Exception e)
             {
-                const string baseDir = theBaseDir;
-                PrepareDir(baseDir);
-                var root = ConstructRoot();
-                var cached = ConstructCache(root, baseDir);
-                var server = new RestfulInfQueueServer<Config>(cached, defaultPort);
-                server.OnPop += cfg => DownloadResult(cfg, baseDir);
-                server.Start();
-                Console.Read();
-                return;
+                Console.Write("MWScheduler: ");
+                Console.WriteLine(e.Message);
             }
+        }
 
-            if (args.Length == 2 &&
-                args[0] == "--client") // client
-            {
-                const string baseDir = "";
-                PrepareDir(baseDir);
-                var remote = new RestfulInfQueueClient<Config>(ParseIPEndPoint(args[1], defaultPort));
-                remote.OnPop += cfg => UploadResult(cfg, baseDir);
-                var syncronized = SynInfQueue<Config>.Syncronize(remote);
-                Run(syncronized, core, baseDir);
-                return;
-            }
+        private static RestfulInfQueueServer<Config> ConstructServer(IInfQueue<Config> cached, int defaultPort,
+                                                                     string baseDir)
+        {
+            var server = new RestfulInfQueueServer<Config>(cached, defaultPort);
+            server.OnPop += cfg => DownloadResult(cfg, baseDir);
+            return server;
+        }
 
-            Console.WriteLine(@"Usage: MWScheduler [--client HOST:PORT | --server [--bare]]");
+        private static RestfulInfQueueClient<Config> ConstructRemote(string ip, string baseDir)
+        {
+            var remote = new RestfulInfQueueClient<Config>(ip);
+            remote.OnPop += cfg => UploadResult(cfg, baseDir);
+            return remote;
+        }
+
+        private static void ShowHelp(OptionSet opt)
+        {
+            Console.WriteLine("Usage: MWScheduler [OPTIONS]+");
+            Console.WriteLine("Run MW1D program");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            opt.WriteOptionDescriptions(Console.Out);
         }
 
         private static void DownloadResult(Config cfg, string baseDir)
@@ -83,16 +145,14 @@ namespace MWScheduler
             File.Delete(filePath);
         }
 
-        private static IPEndPoint ParseIPEndPoint(string endPoint, int defaultPort)
+        private static string ParseIPEndPoint(string endPoint, int defaultPort)
         {
             var ep = endPoint.Split(':');
             if (ep.Length != 1 &&
                 ep.Length != 2)
                 throw new FormatException("Invalid endpoint format");
 
-            IPAddress ip;
-            if (!IPAddress.TryParse(ep[0], out ip))
-                throw new FormatException("Invalid ip-adress");
+            var host = ep[0];
 
             int port;
             if (ep.Length == 1)
@@ -100,7 +160,7 @@ namespace MWScheduler
             else if (!int.TryParse(ep[1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
                 throw new FormatException("Invalid port");
 
-            return new IPEndPoint(ip, port);
+            return $"{host}:{port}";
         }
 
         private static void Run(IInfQueue<Config> cached, Core core, string baseDir)

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Runtime.Remoting;
 using System.Text;
 
@@ -12,17 +11,9 @@ namespace MWScheduler
 
         public event EventHandler OnPop;
 
-        private readonly IPAddress m_Address;
+        private readonly string m_EndPoint;
 
-        private readonly int m_Port;
-
-        private RestfulInfQueueClient(IPAddress address, int port)
-        {
-            m_Address = address;
-            m_Port = port;
-        }
-
-        public RestfulInfQueueClient(IPEndPoint endPoint) : this(endPoint.Address, endPoint.Port) { }
+        public RestfulInfQueueClient(string endPoint) { m_EndPoint = endPoint; }
 
         public T Top => Request("GET");
 
@@ -36,7 +27,7 @@ namespace MWScheduler
 
         private bool PopRequest(T obj)
         {
-            var req = WebRequest.CreateHttp($"http://{m_Address}:{m_Port}/pop");
+            var req = WebRequest.CreateHttp($"http://{m_EndPoint}/pop");
             req.KeepAlive = false;
             req.Accept = "text/plain";
             req.ContentType = "text/xml";
@@ -60,7 +51,7 @@ namespace MWScheduler
 
         private T Request(string method)
         {
-            var req = WebRequest.CreateHttp($"http://{m_Address}:{m_Port}/");
+            var req = WebRequest.CreateHttp($"http://{m_EndPoint}/pop");
             req.KeepAlive = false;
             req.Accept = "text/xml";
             req.Method = method;
