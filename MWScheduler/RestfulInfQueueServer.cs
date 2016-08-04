@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using System.Text;
-using MWLiteService;
+using CSharpUtil;
 
 namespace MWScheduler
 {
@@ -41,13 +39,10 @@ namespace MWScheduler
                         case "/":
                             return Serialize(m_BaseQueue.Lock());
                         case "/pop":
-                            var lng = Convert.ToInt32(request.Header["Content-Length"]);
-                            var buff = new byte[lng];
-                            request.RequestStream.Read(buff, 0, lng);
-                            var obj = RestfulSerialization<T>.Deserialize(Encoding.UTF8.GetString(buff));
+                            var obj = RestfulSerialization<T>.Deserialize(request.ReadToEnd());
                             OnPop?.Invoke(obj);
                             var res = m_BaseQueue.Pop(obj);
-                            return HttpServer.GenerateHttpResponse(res ? "ok" : "ignored", "text/plain");
+                            return HttpUtil.GenerateHttpResponse(res ? "ok" : "ignored", "text/plain");
                         default:
                             throw new HttpException(404);
                     }
@@ -60,7 +55,7 @@ namespace MWScheduler
         {
             var stream = new MemoryStream();
             RestfulSerialization<T>.Serialize(stream, obj);
-            return HttpServer.GenerateHttpResponse(stream, "text/xml");
+            return HttpUtil.GenerateHttpResponse(stream, "text/xml");
         }
     }
 }

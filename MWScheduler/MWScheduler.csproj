@@ -34,6 +34,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HttpServer">
+      <HintPath>..\..\CSharpUtil\HttpServer\bin\Release\HttpServer.dll</HintPath>
+    </Reference>
     <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
       <Private>True</Private>
@@ -55,7 +58,6 @@
     <Compile Include="ConfigInfQueue.cs" />
     <Compile Include="ConstMineInfQueue.cs" />
     <Compile Include="ConstProbInfQueue.cs" />
-    <Compile Include="HttpServer.cs" />
     <Compile Include="Core.cs" />
     <Compile Include="IInfQueue.cs" />
     <Compile Include="LambdaComparer.cs" />
