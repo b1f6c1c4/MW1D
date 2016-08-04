@@ -12,13 +12,15 @@ namespace MWScheduler
             const string theBaseDir = @"db/";
             const int defaultPort = 24680;
 
+            Core core = new RationalCore();
+
             if (args.Length == 0) // stand alone
             {
                 const string baseDir = theBaseDir;
                 PrepareDir(baseDir);
                 var root = ConstructRoot();
                 var cached = ConstructCache(root, baseDir);
-                Run(cached, baseDir);
+                Run(cached, core, baseDir);
                 return;
             }
 
@@ -32,7 +34,7 @@ namespace MWScheduler
                 var server = new RestfulInfQueueServer<Config>(cached, defaultPort);
                 server.OnPop += cfg => DownloadResult(cfg, baseDir);
                 server.Start();
-                Run(cached, baseDir);
+                Run(cached, core, baseDir);
                 return;
             }
 
@@ -59,7 +61,7 @@ namespace MWScheduler
                 var remote = new RestfulInfQueueClient<Config>(ParseIPEndPoint(args[1], defaultPort));
                 remote.OnPop += cfg => UploadResult(cfg, baseDir);
                 var syncronized = SynInfQueue<Config>.Syncronize(remote);
-                Run(syncronized, baseDir);
+                Run(syncronized, core, baseDir);
                 return;
             }
 
@@ -101,7 +103,7 @@ namespace MWScheduler
             return new IPEndPoint(ip, port);
         }
 
-        private static void Run(IInfQueue<Config> cached, string baseDir)
+        private static void Run(IInfQueue<Config> cached, Core core, string baseDir)
         {
 #if DEBUG
             var threads = Environment.ProcessorCount;
@@ -112,7 +114,7 @@ namespace MWScheduler
             var sch = new Scheduler<Config>(threads, cached);
             sch.OnLock += cfg => Console.WriteLine($"Started {cfg}");
             sch.OnPop += cfg => Console.WriteLine($"\t\t\tDone {cfg}");
-            sch.OnWork += cfg => cfg.Process(baseDir);
+            sch.OnWork += cfg => core.Process(cfg, baseDir);
 
             PrepareDir(baseDir);
 

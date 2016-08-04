@@ -15,78 +15,81 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Macro.cpp">
+    <ClCompile Include="..\MW1D\BaseSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\MW1D\FullSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Micro.cpp">
+    <ClCompile Include="..\MW1D\Macro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="OptimalSolver.cpp">
+    <ClCompile Include="..\MW1D\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SingleSolver.cpp">
+    <ClCompile Include="..\MW1D\Micro.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FullSolver.cpp">
+    <ClCompile Include="..\MW1D\MicroSetBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="..\MW1D\MineSweeper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MicroSetBuilder.cpp">
+    <ClCompile Include="..\MW1D\OptimalSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TotalMinesBuilder.cpp">
+    <ClCompile Include="..\MW1D\ProbabilityBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ProbabilityBuilder.cpp">
+    <ClCompile Include="..\MW1D\SingleSolver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BaseSolver.cpp">
+    <ClCompile Include="..\MW1D\TotalMinesBuilder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MineSweeper.cpp">
+    <ClCompile Include="..\MW1D\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Macro.h">
+    <ClInclude Include="..\MW1D\BaseSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Micro.h">
+    <ClInclude Include="..\MW1D\FullSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="OptimalSolver.h">
+    <ClInclude Include="..\MW1D\Macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SingleSolver.h">
+    <ClInclude Include="..\MW1D\main.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FullSolver.h">
+    <ClInclude Include="..\MW1D\Micro.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MicroSetBuilder.h">
+    <ClInclude Include="..\MW1D\MicroSetBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TotalMinesBuilder.h">
+    <ClInclude Include="..\MW1D\MineSweeper.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ProbabilityBuilder.h">
+    <ClInclude Include="..\MW1D\OptimalSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MineSweeper.h">
+    <ClInclude Include="..\MW1D\ProbabilityBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="BaseSolver.h">
+    <ClInclude Include="..\MW1D\SingleSolver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
+    <ClInclude Include="..\MW1D\TotalMinesBuilder.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="..\MW1D\common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MW1D\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

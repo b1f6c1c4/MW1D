@@ -2,14 +2,12 @@
 #include "main.h"
 #include <iostream>
 #include <string>
-#include <limits>
 #include <chrono>
 #include <fstream>
 #include "BaseSolver.h"
 #include "SingleSolver.h"
 #include "FullSolver.h"
 #include "OptimalSolver.h"
-#include "MicroSetBuilder.h"
 #include "TotalMinesBuilder.h"
 #include "ProbabilityBuilder.h"
 #include "MineSweeper.h"
@@ -96,7 +94,7 @@ Verbosity ParseVerbosity(const char *str)
 void CoreSaveResult(prob &&result, const char *filePath)
 {
     std::ofstream fout(filePath);
-    fout << result;
+    fout << to_string(result);
     fout.close();
 }
 
@@ -180,13 +178,12 @@ int main(int argc, char **argv)
         std::cout << slv->GetDescription() << " is:" << std::endl;
     }
 
-    std::cout << mw.GetResult() << std::endl;
+    std::cout << to_string(mw.GetResult()) << std::endl;
 
+#ifdef USE_RATIONAL
     if (verbosity != Verbosity::None)
-    {
-        std::cout.precision(std::numeric_limits<double>::max_digits10);
-        std::cout << "= " << std::fixed << to_double(mw.GetResult()) << std::endl;
-    }
+        std::cout << "= " << to_alias_string(mw.GetResult()) << std::endl;
+#endif
 
     return 0;
 }

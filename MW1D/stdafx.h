@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
-#include "boost/multiprecision/cpp_int.hpp"
+#include <string>
+#include <limits>
+#include <sstream>
+#include <iomanip>
 
 #ifdef _DEBUG
 #define ASSERT(val) do { if (!(val)) throw; } while (false)
@@ -20,14 +23,17 @@ typedef std::vector<bool> bits;
 typedef std::vector<bool>::reference bit_reference;
 typedef std::vector<bool>::const_reference bit_const_reference;
 
+#ifdef USE_RATIONAL
+
+#include "boost/multiprecision/cpp_int.hpp"
+
 typedef boost::multiprecision::cpp_rational prob;
+std::string to_string(prob value);
+std::string to_alias_string(prob value);
 
-inline std::string to_string(prob value)
-{
-    return value.str();
-}
+#else
 
-inline double to_double(prob value)
-{
-    return value.convert_to<double>();
-}
+typedef double prob;
+std::string to_string(prob value);
+
+#endif
