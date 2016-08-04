@@ -173,6 +173,7 @@ namespace MWScheduler
 
         private static void LoadCache(string filePath, Config cfg)
         {
+            Console.WriteLine($"Skipping {cfg}");
             using (var sr = new StringReader(filePath))
             {
                 var sp = sr.ReadToEnd()

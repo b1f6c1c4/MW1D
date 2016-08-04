@@ -54,8 +54,10 @@
     <Compile Include="DllInterface.cs" />
     <Compile Include="HttpServer.cs" />
     <Compile Include="IInfQueue.cs" />
+    <Compile Include="LambdaComparer.cs" />
     <Compile Include="MergedInfQueue.cs" />
     <Compile Include="MineBundle.cs" />
+    <Compile Include="NullComparer.cs" />
     <Compile Include="ProbBundle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

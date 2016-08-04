@@ -50,9 +50,9 @@ namespace MWScheduler
 
             while (File.Exists(TopFileName))
             {
-                m_BaseQueue.Lock();
-                OnSkipping?.Invoke(TopFileName, m_BaseQueue.Top);
-                m_BaseQueue.Pop(m_BaseQueue.Top);
+                var obj = m_BaseQueue.Lock();
+                OnSkipping?.Invoke(Path.Combine(BaseDir, obj.FileName), obj);
+                m_BaseQueue.Pop(obj);
             }
         }
     }

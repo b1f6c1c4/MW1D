@@ -6,26 +6,19 @@ namespace MWScheduler
     public class MergedInfQueue<T> : List<IInfQueue<T>>, IInfQueue<T>
         where T : class
     {
-        private readonly IComparer<T> m_Comparer;
+        private readonly IComparer<IInfQueue<T>> m_Comparer;
 
-        public MergedInfQueue(IComparer<T> comparer) { m_Comparer = comparer; }
+        public MergedInfQueue(IComparer<T> comparer)
+        {
+            var nullComparer = new NullComparer<T>(comparer, false);
+            m_Comparer = new LambdaComparer<IInfQueue<T>, T>(q => q.Top, nullComparer);
+        }
 
         protected IInfQueue<T> Least
         {
             get
             {
-                Sort(
-                     (q1, q2) =>
-                     {
-                         if (q1.Top == null &&
-                             q2.Top == null)
-                             return 0;
-                         if (q1.Top == null)
-                             return 1;
-                         if (q2.Top == null)
-                             return -1;
-                         return m_Comparer.Compare(q1.Top, q2.Top);
-                     });
+                Sort(m_Comparer);
                 return this.First();
             }
         }
@@ -35,5 +28,7 @@ namespace MWScheduler
         public T Lock() => Least.Lock();
 
         public virtual bool Pop(T obj) => this.Any(queue => queue.Pop(obj));
+
+        public override string ToString() => $"{Top?.ToString() ?? "LOCKED"} ...";
     }
 }

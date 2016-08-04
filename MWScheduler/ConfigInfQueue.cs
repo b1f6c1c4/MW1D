@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace MWScheduler
 {
@@ -28,6 +29,9 @@ namespace MWScheduler
 
         public Config Lock()
         {
+            if (m_Locked)
+                throw new SynchronizationLockException();
+
             m_Locked = true;
             return m_Top;
         }
@@ -71,5 +75,7 @@ namespace MWScheduler
 
             return config;
         }
+
+        public override string ToString() => $"{(m_Locked ? "LOCKED" : "")} {m_Top} ...";
     }
 }
