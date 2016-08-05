@@ -14,7 +14,7 @@ public:
     NO_COPY(MineSweeper);
     NO_MOVE(MineSweeper);
 
-    void Run(bool verbose = false);
+    void Run(int verbosity);
     template <typename Rep, typename Period>
     void RunAsync(std::chrono::duration<Rep, Period> interval);
 
@@ -31,7 +31,7 @@ private:
     std::atomic_bool m_Finished;
     prob m_Result;
 
-    void WorkerThreadEntry(bool verbose);
+    void WorkerThreadEntry(int verbosity);
 
     void DoFilter(Macro &macro) const;
     void DoExtra(ExtendedMacro &macro) const;
@@ -45,7 +45,7 @@ void MineSweeper::RunAsync(std::chrono::duration<Rep, Period> interval)
     {
         std::unique_lock<std::mutex> lock(m_Mtx);
 
-        std::thread worker(&MineSweeper::WorkerThreadEntry, this, false);
+        std::thread worker(&MineSweeper::WorkerThreadEntry, this, -2);
 
         while (true)
         {

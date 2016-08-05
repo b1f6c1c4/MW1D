@@ -11,7 +11,7 @@ ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) :
 
 ExtendedMacro::~ExtendedMacro() { }
 
-BaseSolver::BaseSolver() : m_Root(nullptr), m_M(UNCERTAIN), m_Forks(0), m_Verbose(false) { }
+BaseSolver::BaseSolver() : m_Root(nullptr), m_M(UNCERTAIN), m_Forks(0), m_Verbosity(-2) { }
 
 BaseSolver::~BaseSolver() { }
 
@@ -33,19 +33,21 @@ void BaseSolver::IncrementForks()
 
 void BaseSolver::Log(size_t depth, std::string &&str) const
 {
-    if (m_Verbose)
-        std::cout << std::string(depth, '\t') << str << std::endl;
+    if (m_Verbosity >= 0)
+        if (m_Verbosity >= depth)
+            std::cout << std::string(depth, '\t') << str << std::endl;
 }
 
 void BaseSolver::Log(size_t depth, std::function<std::string()> strFunction) const
 {
-    if (m_Verbose)
-        std::cout << std::string(depth, '\t') << strFunction() << std::endl;
+    if (m_Verbosity >= 0)
+        if (m_Verbosity >= depth)
+            std::cout << std::string(depth, '\t') << strFunction() << std::endl;
 }
 
-prob BaseSolver::Solve(bool verbose)
+prob BaseSolver::Solve(int verbosity)
 {
-    m_Verbose = verbose;
+    m_Verbosity = verbosity;
     return Fork(*m_Root, 0);
 }
 

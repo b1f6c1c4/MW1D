@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 void WriteUsage()
 {
     std::cout << R"(MW1D:
-Usage: MW1D <N> <M> <STRATEGY> [-v | -vv] [<FILTER> [<EXTRA>]]
+Usage: MW1D <N> <M> <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
 Return:
   The probability of winning a 1xN Minesweeper game with the specified strategy
   Attention: One may lose on the first click
@@ -28,6 +28,10 @@ Parameters:
     - sl: Single Logic
     - fl: Full Logic - Lowest Probability
     - op: Optimal
+  <VERBOSITY> : how verbose the output is
+    - -2: just raw output (no `-v' is this)
+    - -1: run async and monitor (plain `-v' is this)
+    - x>0: depth <= x
   <FILTER> : string with length of <N>:
     - -: don't care
     - m|M: is mine
@@ -35,10 +39,7 @@ Parameters:
     - 0|1|2 : x mines surrounding
   <EXTRA> : string with length of <N>:
     - -: closed
-    - +: open
-Options:
-  -v : verbose 
-  -vv : more verbose )" << std::endl;
+    - +: open)" << std::endl;
 }
 
 #ifdef MW1D_DLL
@@ -114,26 +115,24 @@ std::shared_ptr<BaseSolver> ParseSolver(const char *str)
     return nullptr;
 }
 
-enum class Verbosity
+bool ParseVerbosity(const char *str, int &out)
 {
-    None,
-    Async,
-    Tree
-};
-
-bool ParseVerbosity(const char *str, Verbosity &out)
-{
-    if (str == nullptr)
-        out = Verbosity::None;
-    else if (strcmp(str, "-v") == 0)
-        out = Verbosity::Async;
-    else if (strcmp(str, "-vv") == 0)
-        out = Verbosity::Tree;
-    else
+    if (str == nullptr || str[0] != '-' || str[1] != 'v')
     {
-        out = Verbosity::None;
+        out = -2;
         return false;
     }
+
+    if (str[2] == '\0')
+    {
+        out = -1;
+        return true;
+    }
+
+    if (str[2] != '=')
+        throw std::runtime_error("format error");
+
+    out = std::stoi(str + 3);
 
     return true;
 }
@@ -198,7 +197,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Verbosity verbosity;
+    int verbosity;
     std::shared_ptr<MicroSetBuilder> builder;
     std::shared_ptr<std::vector<block_t>> filter;
     std::shared_ptr<std::vector<bool>> extra;
@@ -225,7 +224,7 @@ int main(int argc, char **argv)
             if (argc > filterId + 1)
             {
                 extra = ParseExtra(argv[filterId + 1]);
-                if (argc >= filterId + 2)
+                if (argc > filterId + 2)
                     throw std::runtime_error("format error");
             }
         }
@@ -243,19 +242,19 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (verbosity != Verbosity::None)
+    if (verbosity != -2)
     {
         std::cout << "Solving 1x" << n << " Minesweeper game ";
         std::cout << "using strategy " << slv->GetDescription() << std::endl;
     }
 
     MineSweeper mw(builder, slv, filter, extra);
-    if (verbosity == Verbosity::Async)
+    if (verbosity == -1)
         mw.RunAsync(200ms);
     else
-        mw.Run(verbosity == Verbosity::Tree);
+        mw.Run(verbosity);
 
-    if (verbosity != Verbosity::None)
+    if (verbosity != -2)
     {
         std::cout << "The probability of winning the game with ";
         std::cout << slv->GetDescription() << " is:" << std::endl;
@@ -264,7 +263,7 @@ int main(int argc, char **argv)
     std::cout << to_string(mw.GetResult()) << std::endl;
 
 #ifdef USE_RATIONAL
-    if (verbosity != Verbosity::None)
+    if (verbosity != -2)
         std::cout << "= " << to_alias_string(mw.GetResult()) << std::endl;
 #endif
 

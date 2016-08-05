@@ -21,9 +21,14 @@ bool Macro::IsOpen(size_t id) const
     return m_Mask[id];
 }
 
-void Macro::MarkOpen(size_t id)
+bit_reference Macro::operator[](size_t id)
 {
-    m_Mask[id] = true;
+    return m_Mask[id];
+}
+
+bit_const_reference Macro::operator[](size_t id) const
+{
+    return m_Mask[id];
 }
 
 bool Macro::BlockOpenFilter(const Micro &micro, size_t id, block_t m)

@@ -20,7 +20,8 @@ public:
     size_t GetN() const;
     bool IsOpen(size_t id) const;
 
-    void MarkOpen(size_t id);
+    bit_reference operator[](size_t id);
+    bit_const_reference operator[](size_t id) const;
 
 private:
     size_t m_Width;

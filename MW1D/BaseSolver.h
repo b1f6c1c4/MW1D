@@ -32,7 +32,7 @@ public:
     size_t GetForks() const;
 
     void LoadData(std::shared_ptr<ExtendedMacro> root, size_t m);
-    prob Solve(bool verbose = false);
+    prob Solve(int verbosity);
 
 protected:
     prob Fork(const ExtendedMacro &macro, size_t id, size_t depth);
@@ -47,5 +47,5 @@ protected:
 
 private:
     std::atomic<size_t> m_Forks;
-    bool m_Verbose;
+    int m_Verbosity;
 };
