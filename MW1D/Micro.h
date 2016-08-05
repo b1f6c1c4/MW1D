@@ -40,7 +40,7 @@ public:
     virtual ~MicroSet();
 
     Micro &operator=(const Micro &) = delete;
-    NO_MOVE(MicroSet);
+    DEFAULT_MOVE(MicroSet);
 
     size_t size() const;
     std::vector<Micro>::const_iterator begin() const;

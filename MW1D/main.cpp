@@ -16,11 +16,11 @@ using namespace std::chrono_literals;
 
 void WriteUsage()
 {
-    std::cout << R"(Usage: MW1D <N> <M> <STRATEGY> [-v | -vv]
+    std::cout << R"(MW1D:
+Usage: MW1D <N> <M> <STRATEGY> [-v | -vv] [<FILTER> [<EXTRA>]]
 Return:
   The probability of winning a 1xN Minesweeper game with the specified strategy
   Attention: One may lose on the first click
-    std::cout << std::endl;
 Parameters:
   <N> : length of board
   <M> : number of mines
@@ -28,10 +28,52 @@ Parameters:
     - sl: Single Logic
     - fl: Full Logic - Lowest Probability
     - op: Optimal
+  <FILTER> : string with length of <N>:
+    - -: don't care
+    - m|M: is mine
+    - f|F: is not mine
+    - 0|1|2 : x mines surrounding
+  <EXTRA> : string with length of <N>:
+    - -: closed
+    - +: open
 Options:
   -v : verbose 
   -vv : more verbose )" << std::endl;
 }
+
+#ifdef MW1D_DLL
+
+void CoreSaveResult(prob &&result, const char *filePath)
+{
+    std::ofstream fout(filePath);
+    fout << to_string(result);
+    fout.close();
+}
+
+extern "C"
+{
+    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, const char *filePath)
+    {
+        auto builder = std::make_shared<TotalMinesBuilder>(n, m);
+        auto slv = ParseSolver(solver);
+        MineSweeper mw(builder, slv);
+        mw.Run();
+        CoreSaveResult(mw.GetResult(), filePath);
+    }
+
+    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, const char *filePath)
+    {
+        prob p = pN;
+        p /= pD;
+        auto builder = std::make_shared<ProbabilityBuilder>(n, p);
+        auto slv = ParseSolver(solver);
+        MineSweeper mw(builder, slv);
+        mw.Run();
+        CoreSaveResult(mw.GetResult(), filePath);
+    }
+}
+
+#else
 
 size_t ParseSizeT(const char *str)
 {
@@ -64,11 +106,11 @@ bool TryParseRational(const char *str, prob &res)
 std::shared_ptr<BaseSolver> ParseSolver(const char *str)
 {
     if (strcmp(str, "sl") == 0)
-        return std::make_unique<SingleSolver>();
+        return std::make_shared<SingleSolver>();
     if (strcmp(str, "fl") == 0)
-        return std::make_unique<FullSolver>();
+        return std::make_shared<FullSolver>();
     if (strcmp(str, "op") == 0)
-        return std::make_unique<OptimalSolver>();
+        return std::make_shared<OptimalSolver>();
     return nullptr;
 }
 
@@ -79,51 +121,78 @@ enum class Verbosity
     Tree
 };
 
-Verbosity ParseVerbosity(const char *str)
+bool ParseVerbosity(const char *str, Verbosity &out)
 {
     if (str == nullptr)
-        return Verbosity::None;
-    if (strcmp(str, "-v") == 0)
-        return Verbosity::Async;
-    if (strcmp(str, "-vv") == 0)
-        return Verbosity::Tree;
-    throw std::runtime_error("format error");
-}
-
-#ifdef MW1D_DLL
-void CoreSaveResult(prob &&result, const char *filePath)
-{
-    std::ofstream fout(filePath);
-    fout << to_string(result);
-    fout.close();
-}
-
-extern "C"
-{
-    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, const char *filePath)
+        out = Verbosity::None;
+    else if (strcmp(str, "-v") == 0)
+        out = Verbosity::Async;
+    else if (strcmp(str, "-vv") == 0)
+        out = Verbosity::Tree;
+    else
     {
-        auto builder = std::make_shared<TotalMinesBuilder>(n, m);
-        auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv);
-        mw.Run();
-        CoreSaveResult(mw.GetResult(), filePath);
+        out = Verbosity::None;
+        return false;
     }
 
-    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, const char *filePath)
-    {
-        prob p = pN;
-        p /= pD;
-        auto builder = std::make_shared<ProbabilityBuilder>(n, p);
-        auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv);
-        mw.Run();
-        CoreSaveResult(mw.GetResult(), filePath);
-    }
+    return true;
 }
-#else
+
+std::shared_ptr<std::vector<block_t>> ParseFilter(const char *str)
+{
+    auto n = strlen(str);
+    auto res = std::make_shared<std::vector<block_t>>(n, UNKNOWN);
+
+    for (auto i = 0; i < n; i++)
+        switch (str[i])
+        {
+        case 'm':
+        case 'M':
+            res->at(i) = MINE;
+            break;
+        case 'f':
+        case 'F':
+            res->at(i) = NOMINE;
+            break;
+        case '0':
+            res->at(i) = 0;
+            break;
+        case '1':
+            res->at(i) = 1;
+            break;
+        case '2':
+            res->at(i) = 2;
+            break;
+        case '-':
+        default:
+            break;
+        }
+
+    return res;
+}
+
+std::shared_ptr<std::vector<bool>> ParseExtra(const char *str)
+{
+    auto n = strlen(str);
+    auto res = std::make_shared<std::vector<bool>>(n, false);
+
+    for (auto i = 0; i < n; i++)
+        switch (str[i])
+        {
+        case '+':
+            res->at(i) = true;
+            break;
+        case '-':
+        default:
+            break;
+        }
+
+    return res;
+}
+
 int main(int argc, char **argv)
 {
-    if (argc != 4 && argc != 5)
+    if (argc < 4 || argc > 7)
     {
         WriteUsage();
         return 0;
@@ -131,10 +200,12 @@ int main(int argc, char **argv)
 
     Verbosity verbosity;
     std::shared_ptr<MicroSetBuilder> builder;
+    std::shared_ptr<std::vector<block_t>> filter;
+    std::shared_ptr<std::vector<bool>> extra;
     size_t n;
     try
     {
-        verbosity = ParseVerbosity(argc == 5 ? argv[4] : nullptr);
+        auto isVerb = ParseVerbosity(argc >= 5 ? argv[4] : nullptr, verbosity);
 
         n = ParseSizeT(argv[1]);
 
@@ -145,6 +216,18 @@ int main(int argc, char **argv)
         {
             auto m = ParseSizeT(argv[2]);
             builder = std::make_shared<TotalMinesBuilder>(n, m);
+        }
+
+        auto filterId = isVerb ? 5 : 4;
+        if (argc > filterId)
+        {
+            filter = ParseFilter(argv[filterId]);
+            if (argc > filterId + 1)
+            {
+                extra = ParseExtra(argv[filterId + 1]);
+                if (argc >= filterId + 2)
+                    throw std::runtime_error("format error");
+            }
         }
     }
     catch (...)
@@ -166,7 +249,7 @@ int main(int argc, char **argv)
         std::cout << "using strategy " << slv->GetDescription() << std::endl;
     }
 
-    MineSweeper mw(builder, slv);
+    MineSweeper mw(builder, slv, filter, extra);
     if (verbosity == Verbosity::Async)
         mw.RunAsync(200ms);
     else

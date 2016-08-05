@@ -3,9 +3,10 @@
 
 Macro::Macro(size_t width) : m_Width(width), m_Mask(width, false) { }
 
-Macro::Macro(const Macro &other, size_t id, block_t m) : MicroSet(other, std::bind(&Macro::BlockOpenFilter, std::placeholders::_1, id, m)), m_Width(other.m_Width), m_Mask(other.m_Mask)
+Macro::Macro(const Macro &other, size_t id, block_t m, bool open) : MicroSet(other, std::bind(&Macro::BlockOpenFilter, std::placeholders::_1, id, m)), m_Width(other.m_Width), m_Mask(other.m_Mask)
 {
-    m_Mask[id] = true;
+    if (open)
+        m_Mask[id] = true;
 }
 
 Macro::~Macro() { }
@@ -20,8 +21,19 @@ bool Macro::IsOpen(size_t id) const
     return m_Mask[id];
 }
 
+void Macro::MarkOpen(size_t id)
+{
+    m_Mask[id] = true;
+}
+
 bool Macro::BlockOpenFilter(const Micro &micro, size_t id, block_t m)
 {
+    if (m == UNKNOWN)
+        return true;
+
+    if (m == NOMINE)
+        return !micro[id];
+
     if (m == MINE)
         return micro[id];
 

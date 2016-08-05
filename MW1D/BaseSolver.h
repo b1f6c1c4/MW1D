@@ -4,8 +4,6 @@
 #include <string>
 #include <atomic>
 
-#define UNKNOWN static_cast<block_t>(-2)
-
 class ExtendedMacro : public Macro
 {
 public:

@@ -8,7 +8,7 @@
 class MineSweeper final
 {
 public:
-    MineSweeper(std::shared_ptr<MicroSetBuilder> builder, std::shared_ptr<BaseSolver> solver);
+    MineSweeper(std::shared_ptr<MicroSetBuilder> builder, std::shared_ptr<BaseSolver> solver, std::shared_ptr<std::vector<block_t>> filter, std::shared_ptr<std::vector<bool>> extra);
     ~MineSweeper();
 
     NO_COPY(MineSweeper);
@@ -23,6 +23,8 @@ public:
 private:
     std::shared_ptr<MicroSetBuilder> m_Builder;
     std::shared_ptr<BaseSolver> m_Solver;
+    std::shared_ptr<std::vector<block_t>> m_Filter;
+    std::shared_ptr<std::vector<bool>> m_Extra;
 
     std::mutex m_Mtx;
     std::condition_variable m_CV;
@@ -30,6 +32,9 @@ private:
     prob m_Result;
 
     void WorkerThreadEntry(bool verbose);
+
+    void DoFilter(Macro &macro) const;
+    void DoExtra(ExtendedMacro &macro) const;
 };
 
 template <typename Rep, typename Period>
