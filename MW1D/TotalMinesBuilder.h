@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
 #include "MicroSetBuilder.h"
-#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 class TotalMinesBuilder : public MicroSetBuilder
 {

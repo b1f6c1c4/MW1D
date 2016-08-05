@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include <functional>
 #include <memory>
-#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 class Micro
 {

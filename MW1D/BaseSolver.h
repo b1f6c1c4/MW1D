@@ -3,7 +3,6 @@
 #include "Macro.h"
 #include <string>
 #include <atomic>
-#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 #define UNKNOWN static_cast<block_t>(-2)
 

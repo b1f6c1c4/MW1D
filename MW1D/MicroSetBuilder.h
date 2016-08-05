@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
 #include "Micro.h"
-#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 class MicroSetBuilder
 {

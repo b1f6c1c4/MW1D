@@ -4,6 +4,7 @@
 #include <limits>
 #include <sstream>
 #include <iomanip>
+#include "../../CppUtil/CppUtil/CopyMove.hpp"
 
 #ifdef _DEBUG
 #define ASSERT(val) do { if (!(val)) throw; } while (false)
