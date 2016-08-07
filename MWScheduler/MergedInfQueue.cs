@@ -8,11 +8,7 @@ namespace MWScheduler
     {
         private readonly IComparer<IInfQueue<T>> m_Comparer;
 
-        public MergedInfQueue(IComparer<T> comparer)
-        {
-            var nullComparer = new NullComparer<T>(comparer, false);
-            m_Comparer = new LambdaComparer<IInfQueue<T>, T>(q => q.Top, nullComparer);
-        }
+        public MergedInfQueue(IComparer<IInfQueue<T>> comparer) { m_Comparer = comparer; }
 
         protected IInfQueue<T> Least
         {
@@ -24,6 +20,8 @@ namespace MWScheduler
         }
 
         public T Top => Least.Top;
+
+        public bool IsLocked => Least.IsLocked;
 
         public T Lock() => Least.Lock();
 

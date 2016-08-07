@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MWScheduler
 {
@@ -6,12 +7,13 @@ namespace MWScheduler
     {
         private ConstMineInfQueue m_CriticalQueue;
 
-        public MineBundle(IComparer<Config> comparer, int width, int mines, string strategy) : base(comparer)
+        public MineBundle(IComparer<IInfQueue<Config>> comparer, int width, int mines, string strategy)
+            : base(comparer)
         {
             var queue = new ConstMineInfQueue
                             {
                                 Width = width,
-                                IncreaseMines = true,
+                                IncreaseMines = false,
                                 TotalMines = mines,
                                 Strategy = strategy
                             };
@@ -22,25 +24,28 @@ namespace MWScheduler
 
         public override bool Pop(Config obj)
         {
-            if (!base.Pop(obj))
-                return false;
+            if (!obj.Equals(m_CriticalQueue.Top))
+                return base.Pop(obj);
 
-            if (Least != m_CriticalQueue)
-                return true;
+            if (!base.Pop(obj))
+                throw new ApplicationException();
 
             var queue = new ConstMineInfQueue
                             {
-                                Width = m_CriticalQueue.Width + 1,
+                                Width = m_CriticalQueue.Top.Width,
                                 IncreaseMines = !m_CriticalQueue.IncreaseMines,
-                                TotalMines = m_CriticalQueue.TotalMines,
+                                TotalMines = m_CriticalQueue.Top.TotalMines,
                                 Strategy = m_CriticalQueue.Strategy,
                                 Prev1T = m_CriticalQueue.Top.Elapsed,
                                 Prev2T = null
                             };
             if (!m_CriticalQueue.IncreaseMines)
                 queue.TotalMines++;
+            else
+                queue.TotalMines--;
 
             Add(queue);
+
             m_CriticalQueue = queue;
             return true;
         }

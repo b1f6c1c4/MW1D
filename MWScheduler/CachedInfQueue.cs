@@ -25,6 +25,15 @@ namespace MWScheduler
             }
         }
 
+        public bool IsLocked
+        {
+            get
+            {
+                Check();
+                return m_BaseQueue.IsLocked;
+            }
+        }
+
         public T Lock()
         {
             Check();
@@ -40,12 +49,11 @@ namespace MWScheduler
             return res;
         }
 
-        private string TopFileName =>
-            m_BaseQueue.Top != null ? Path.Combine(BaseDir, m_BaseQueue.Top.FileName) : null;
+        private string TopFileName => Path.Combine(BaseDir, m_BaseQueue.Top.FileName);
 
         private void Check()
         {
-            if (TopFileName == null)
+            if (m_BaseQueue.IsLocked)
                 return;
 
             while (File.Exists(TopFileName))

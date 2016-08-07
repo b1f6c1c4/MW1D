@@ -15,9 +15,11 @@ namespace MWScheduler
 
         public RestfulInfQueueClient(string endPoint) { m_EndPoint = endPoint; }
 
-        public T Top => Request("GET");
+        public T Top => Request(false);
 
-        public T Lock() => Request("POST");
+        public bool IsLocked => IsLockedRequest();
+
+        public T Lock() => Request(true);
 
         public bool Pop(T obj)
         {
@@ -49,12 +51,12 @@ namespace MWScheduler
             return false;
         }
 
-        private T Request(string method)
+        private T Request(bool post)
         {
-            var req = WebRequest.CreateHttp($"http://{m_EndPoint}/pop");
+            var req = WebRequest.CreateHttp($"http://{m_EndPoint}/");
             req.KeepAlive = false;
             req.Accept = "text/xml";
-            req.Method = method;
+            req.Method = post ? "POST" : "GET";
 
             var res = req.GetResponse();
             using (var stream = res.GetResponseStream())
@@ -63,6 +65,25 @@ namespace MWScheduler
                     var buff = new byte[res.ContentLength];
                     stream.Read(buff, 0, (int)res.ContentLength);
                     return RestfulSerialization<T>.Deserialize(Encoding.UTF8.GetString(buff));
+                }
+
+            throw new RemotingException();
+        }
+
+        private bool IsLockedRequest()
+        {
+            var req = WebRequest.CreateHttp($"http://{m_EndPoint}/isLocked");
+            req.KeepAlive = false;
+            req.Accept = "text/xml";
+            req.Method = "GET";
+
+            var res = req.GetResponse();
+            using (var stream = res.GetResponseStream())
+                if (stream != null)
+                {
+                    var buff = new byte[res.ContentLength];
+                    stream.Read(buff, 0, (int)res.ContentLength);
+                    return Encoding.UTF8.GetString(buff) == "true";
                 }
 
             throw new RemotingException();

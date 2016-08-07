@@ -4,7 +4,8 @@ namespace MWScheduler
 {
     public class ProbBundle : MergedInfQueue<Config>
     {
-        public ProbBundle(IComparer<Config> comparer, IEnumerable<Rational> probs, string strategy, bool mirror = false)
+        public ProbBundle(IComparer<IInfQueue<Config>> comparer, IEnumerable<Rational> probs, string strategy,
+                          bool mirror = false)
             : base(comparer)
         {
             foreach (var prob in probs)

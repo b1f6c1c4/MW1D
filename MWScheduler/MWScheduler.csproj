@@ -63,7 +63,7 @@
     <Compile Include="LambdaComparer.cs" />
     <Compile Include="MergedInfQueue.cs" />
     <Compile Include="MineBundle.cs" />
-    <Compile Include="NullComparer.cs" />
+    <Compile Include="BooleanComparer.cs" />
     <Compile Include="ProbBundle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,6 +74,7 @@
     <Compile Include="RestfulInfQueueServer.cs" />
     <Compile Include="Scheduler.cs" />
     <Compile Include="SynInfQueue.cs" />
+    <Compile Include="ThenComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(SolutionDir)$(PlatformName)\$(ConfigurationName)\MW1D.dll">

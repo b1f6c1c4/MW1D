@@ -5,6 +5,8 @@
     {
         T Top { get; }
 
+        bool IsLocked { get; }
+
         T Lock();
 
         bool Pop(T obj);

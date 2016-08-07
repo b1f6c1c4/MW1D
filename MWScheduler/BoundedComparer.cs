@@ -2,20 +2,20 @@
 
 namespace MWScheduler
 {
-    public class BoundedComparer : IComparer<Config>
+    public class BoundedComparer : IComparer<double>
     {
         private readonly double m_Bound;
 
         public BoundedComparer(double bound) { m_Bound = bound; }
 
-        public int Compare(Config x, Config y)
+        public int Compare(double x, double y)
         {
-            if (x.Width >= m_Bound * y.Width)
+            if (x >= m_Bound * y)
                 return 1;
-            if (y.Width >= m_Bound * x.Width)
+            if (y >= m_Bound * x)
                 return -1;
 
-            return x.Elapsed.CompareTo(y.Elapsed);
+            return 0;
         }
     }
 }

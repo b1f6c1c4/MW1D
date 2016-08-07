@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using NDesk.Options;
@@ -12,6 +13,10 @@ namespace MWScheduler
             const string theBaseDir = @"db/";
             const int defaultPort = 24680;
 
+            double bound = 2;
+            var useT = true;
+            var useP = true;
+            string strategy = null;
             int? port = null;
             var bare = false;
             string ip = null;
@@ -21,10 +26,14 @@ namespace MWScheduler
             var opt =
                 new OptionSet
                     {
-                        { "r|rational", "use rational core", v => useRational = v != null },
-                        { "s|server=", "start server listening at {PORT}", (int v) => port = v },
-                        { "b|bare", "don't run core; just listening", v => bare = v != null },
-                        { "c|client=", "connect to server {ENDPOINT}", v => ip = ParseIPEndPoint(v, defaultPort) },
+                        { "b|bound=", "max {BOUND}", (double v) => bound = v },
+                        { "s|strategy=", "use {STRATEGY} only", v => strategy = v },
+                        { "T|T-only", "use T mode only", v => useP = v == null },
+                        { "P|P-only", "use P mode only", v => useT = v == null },
+                        { "R|rational", "use rational core", v => useRational = v != null },
+                        { "S|server=", "start server listening at {PORT}", (int v) => port = v },
+                        { "B|bare", "don't run core; just listening", v => bare = v != null },
+                        { "C|client=", "connect to server {ENDPOINT}", v => ip = ParseIPEndPoint(v, defaultPort) },
                         { "h|?|help", "show this message and exit", v => help = v != null }
                     };
 
@@ -50,6 +59,10 @@ namespace MWScheduler
 
                 if (useRational && bare)
                     throw new ApplicationException("cann't --bare and --rational at the same time");
+
+                if (!useP &&
+                    !useT)
+                    throw new ApplicationException("cann't --T-only and --P-only at the same time");
             }
             catch (Exception e)
             {
@@ -68,8 +81,9 @@ namespace MWScheduler
                     baseDir = theBaseDir;
                     PrepareDir(baseDir);
 
-                    root = ConstructRoot();
+                    root = ConstructRoot(strategy, bound, useT, useP);
                     root = ConstructCache(root, baseDir);
+                    root = Syncronize(root);
 
                     if (port != null)
                     {
@@ -82,7 +96,7 @@ namespace MWScheduler
                     baseDir = "";
 
                     root = ConstructRemote(ip, baseDir);
-                    root = SynInfQueue<Config>.Syncronize(root);
+                    root = Syncronize(root);
                 }
 
                 if (!bare)
@@ -104,6 +118,14 @@ namespace MWScheduler
                 Console.Write("MWScheduler: ");
                 Console.WriteLine(e.Message);
             }
+        }
+
+        private static SynInfQueue<Config> Syncronize(IInfQueue<Config> root)
+        {
+            var syn = new SynInfQueue<Config>(root);
+            syn.OnWaiting += () => Console.WriteLine("All locked; start waiting...");
+            syn.OnWaited += () => Console.WriteLine("resume from waiting...");
+            return syn;
         }
 
         private static RestfulInfQueueServer<Config> ConstructServer(IInfQueue<Config> cached, int defaultPort,
@@ -188,9 +210,14 @@ namespace MWScheduler
                 Directory.CreateDirectory(baseDir);
         }
 
-        private static IInfQueue<Config> ConstructRoot()
+        private static IInfQueue<Config> ConstructRoot(string strategy, double bound, bool useT, bool useP)
         {
-            var cmp = new BoundedComparer(2);
+            var cmp =
+                new ThenComparer<IInfQueue<Config>>(
+                    new LambdaComparer<IInfQueue<Config>, double>(q => q.Top.Width, new BoundedComparer(bound)),
+                    new ThenComparer<IInfQueue<Config>>(
+                        new LambdaComparer<IInfQueue<Config>, bool>(q => q.IsLocked, new BooleanComparer()),
+                        new LambdaComparer<IInfQueue<Config>, long>(q => q.Top.Elapsed, Comparer<long>.Default)));
 
             var probs =
                 new[]
@@ -203,16 +230,34 @@ namespace MWScheduler
                         new Rational(1, 64)
                     };
 
-            var root =
-                new MergedInfQueue<Config>(cmp)
+            Action<Func<string, IInfQueue<Config>>, MergedInfQueue<Config>> add =
+                (func, merged) =>
+                {
+                    if (strategy != null)
                     {
-                        new MineBundle(cmp, 4, 2, "op"),
-                        new MineBundle(cmp, 4, 2, "sl"),
-                        new MineBundle(cmp, 4, 2, "fl"),
-                        new ProbBundle(cmp, probs, "op", true),
-                        new ProbBundle(cmp, probs, "sl", true),
-                        new ProbBundle(cmp, probs, "fl", true)
-                    };
+                        merged.Add(func(strategy));
+                        return;
+                    }
+                    merged.Add(func("op"));
+                    merged.Add(func("sl"));
+                    merged.Add(func("fl"));
+                };
+
+
+            var root = new MergedInfQueue<Config>(cmp);
+            if (useT)
+            {
+                var tRoot = new MergedInfQueue<Config>(cmp);
+                add(s => new MineBundle(cmp, 4, 2, s), tRoot);
+                root.Add(tRoot);
+            }
+            if (useP)
+            {
+                var pRoot = new MergedInfQueue<Config>(cmp);
+                add(s => new ProbBundle(cmp, probs, s, true), pRoot);
+                root.Add(pRoot);
+            }
+
             return root;
         }
 
@@ -221,7 +266,7 @@ namespace MWScheduler
             var cached = new CachedInfQueue<Config>(root) { BaseDir = baseDir };
             cached.OnSkipping += LoadCache;
             cached.OnPop += SaveCache;
-            return SynInfQueue<Config>.Syncronize(cached);
+            return cached;
         }
 
         private static void SaveCache(string filePath, Config cfg)
@@ -235,7 +280,7 @@ namespace MWScheduler
 
         private static void LoadCache(string filePath, Config cfg)
         {
-            Console.WriteLine($"Skipping {cfg}");
+            // Console.WriteLine($"Skipping {cfg}");
             using (var sr = new StringReader(filePath))
             {
                 var sp = sr.ReadToEnd()

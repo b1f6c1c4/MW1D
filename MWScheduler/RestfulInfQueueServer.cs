@@ -30,9 +30,15 @@ namespace MWScheduler
             switch (request.Method)
             {
                 case "GET":
-                    if (request.BaseUri != "/")
-                        throw new HttpException(404);
-                    return Serialize(m_BaseQueue.Top);
+                    switch (request.BaseUri)
+                    {
+                        case "/":
+                            return Serialize(m_BaseQueue.Top);
+                        case "/isLocked":
+                            return HttpUtil.GenerateHttpResponse(m_BaseQueue.IsLocked ? "true" : "false");
+                        default:
+                            throw new HttpException(404);
+                    }
                 case "POST":
                     switch (request.BaseUri)
                     {

@@ -5,22 +5,11 @@ namespace MWScheduler
 {
     public abstract class ConfigInfQueue : IInfQueue<Config>
     {
-        private bool m_Locked;
         private Config m_Top;
 
-        public Config Top
-        {
-            get
-            {
-                if (m_Locked)
-                    return null;
+        public Config Top => m_Top ?? (m_Top = GenerateOne());
 
-                if (m_Top == null)
-                    m_Top = GenerateOne();
-
-                return m_Top;
-            }
-        }
+        public bool IsLocked { get; private set; }
 
         public long? Prev1T { get; set; }
         public long? Prev2T { get; set; }
@@ -29,10 +18,10 @@ namespace MWScheduler
 
         public Config Lock()
         {
-            if (m_Locked)
+            if (IsLocked)
                 throw new SynchronizationLockException();
 
-            m_Locked = true;
+            IsLocked = true;
             return m_Top;
         }
 
@@ -44,7 +33,7 @@ namespace MWScheduler
             Prev2T = Prev1T;
             Prev1T = m_Top.Elapsed;
             m_Top = GenerateOne();
-            m_Locked = false;
+            IsLocked = false;
             return true;
         }
 
@@ -76,6 +65,6 @@ namespace MWScheduler
             return config;
         }
 
-        public override string ToString() => $"{(m_Locked ? "LOCKED" : "")} {m_Top} ...";
+        public override string ToString() => $"{(IsLocked ? "LOCKED" : "")} {m_Top} ...";
     }
 }
