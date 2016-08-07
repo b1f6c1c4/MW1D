@@ -45,10 +45,42 @@ void BaseSolver::Log(size_t depth, std::function<std::string()> strFunction) con
             std::cout << std::string(depth, '\t') << strFunction() << std::endl;
 }
 
+prob BaseSolver::PreFork(ExtendedMacro &macro, size_t depth)
+{
+    if (macro.size() == 1)
+        return 1;
+
+    auto &&p = Fork(macro, depth);
+
+    for (auto &micro : macro)
+    {
+        size_t i = 0;
+        for (i = 0; i < micro.size(); i++)
+            if (!macro.IsOpen(i) && !micro[i])
+                break;
+        if (i == micro.size())
+        {
+            Log(depth, [&]()
+                {
+                    return "Modify: p=" + to_string(p) + " -> p=" + to_string(p + micro.GetProb() / macro.GetTotalProb());
+                });
+
+            p += micro.GetProb() / macro.GetTotalProb();
+            return p;
+        }
+    }
+
+    Log(depth, [&]()
+        {
+            return "No modify: p=" + to_string(p);
+        });
+    return p;
+}
+
 prob BaseSolver::Solve(int verbosity)
 {
     m_Verbosity = verbosity;
-    return Fork(*m_Root, 0);
+    return PreFork(*m_Root, 0);
 }
 
 prob BaseSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
@@ -67,14 +99,14 @@ prob BaseSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
         ExtendedMacro newMacro(macro, id, m);
         if (newMacro.size() > 0)
         {
-            auto p = newMacro.GetTotalProb();
+            auto &&p = newMacro.GetTotalProb();
 
             Log(depth, [&]()
                 {
                     return "  case " + std::to_string(static_cast<int>(m)) +
                         " (p=" + to_string(p / macro.GetTotalProb()) + "):";
                 });
-            auto pf = Fork(newMacro, depth + 1);
+            auto &&pf = PreFork(newMacro, depth + 1);
             p0 += p * pf;
         }
     }

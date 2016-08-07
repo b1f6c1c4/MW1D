@@ -12,9 +12,6 @@ std::string FullSolver::GetDescription() const
 
 prob FullSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
-    if (macro.size() == 1)
-        return 1;
-
     std::vector<size_t> cnts(macro.GetN(), 0);
     for (auto it = macro.begin(); it != macro.end(); ++it)
         for (size_t i = 0; i < macro.GetN(); i++)

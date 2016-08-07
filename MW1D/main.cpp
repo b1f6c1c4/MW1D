@@ -42,6 +42,17 @@ Parameters:
     - +: open)" << std::endl;
 }
 
+std::shared_ptr<BaseSolver> ParseSolver(const char *str)
+{
+    if (strcmp(str, "sl") == 0)
+        return std::make_shared<SingleSolver>();
+    if (strcmp(str, "fl") == 0)
+        return std::make_shared<FullSolver>();
+    if (strcmp(str, "op") == 0)
+        return std::make_shared<OptimalSolver>();
+    return nullptr;
+}
+
 #ifdef MW1D_DLL
 
 void CoreSaveResult(prob &&result, const char *filePath)
@@ -57,8 +68,8 @@ extern "C"
     {
         auto builder = std::make_shared<TotalMinesBuilder>(n, m);
         auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv);
-        mw.Run();
+        MineSweeper mw(builder, slv, nullptr, nullptr);
+        mw.Run(-2);
         CoreSaveResult(mw.GetResult(), filePath);
     }
 
@@ -68,8 +79,8 @@ extern "C"
         p /= pD;
         auto builder = std::make_shared<ProbabilityBuilder>(n, p);
         auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv);
-        mw.Run();
+        MineSweeper mw(builder, slv, nullptr, nullptr);
+        mw.Run(-2);
         CoreSaveResult(mw.GetResult(), filePath);
     }
 }
@@ -102,17 +113,6 @@ bool TryParseRational(const char *str, prob &res)
         ptr++;
     }
     return false;
-}
-
-std::shared_ptr<BaseSolver> ParseSolver(const char *str)
-{
-    if (strcmp(str, "sl") == 0)
-        return std::make_shared<SingleSolver>();
-    if (strcmp(str, "fl") == 0)
-        return std::make_shared<FullSolver>();
-    if (strcmp(str, "op") == 0)
-        return std::make_shared<OptimalSolver>();
-    return nullptr;
 }
 
 bool ParseVerbosity(const char *str, int &out)

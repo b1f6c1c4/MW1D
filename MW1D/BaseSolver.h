@@ -48,4 +48,6 @@ protected:
 private:
     std::atomic<size_t> m_Forks;
     int m_Verbosity;
+
+    prob PreFork(ExtendedMacro &macro, size_t depth);
 };

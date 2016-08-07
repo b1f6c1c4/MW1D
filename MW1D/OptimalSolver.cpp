@@ -12,9 +12,6 @@ std::string OptimalSolver::GetDescription() const
 
 prob OptimalSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
-    if (macro.size() == 1)
-        return 1;
-
     IncrementForks();
 
     prob pMax = 0;

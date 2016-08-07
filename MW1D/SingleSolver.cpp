@@ -13,9 +13,6 @@ std::string SingleSolver::GetDescription() const
 
 prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
-    if (macro.size() == 1)
-        return 1;
-
     auto last = macro.GetN() - 1;
 
     Log(depth, [&]()
