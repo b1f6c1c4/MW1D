@@ -13,16 +13,22 @@ size_t ProbabilityBuilder::GetM() const
 void ProbabilityBuilder::First(Micro &set)
 {
     auto n = GetN();
+#ifdef USE_CAS
+    set.resize(n, false);
+#else
     if (m_P == 1)
         set.resize(n, true);
     else
         set.resize(n, false);
+#endif
 }
 
 bool ProbabilityBuilder::Next(Micro &set)
 {
+#ifndef USE_CAS
     if (m_P == 0 || m_P == 1)
         return false;
+#endif
 
     auto n = GetN();
     for (auto i = 0; i < n; i++)

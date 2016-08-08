@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <fstream>
 #include "BaseSolver.h"
 #include "SingleSolver.h"
 #include "FullSolver.h"
@@ -17,13 +16,15 @@ using namespace std::chrono_literals;
 void WriteUsage()
 {
     std::cout << R"(MW1D:
-Usage: MW1D <N> <M> <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
+Usage: MW1D <N> [<M>|<P>|p] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
 Return:
   The probability of winning a 1xN Minesweeper game with the specified strategy
   Attention: One may lose on the first click
 Parameters:
   <N> : length of board
   <M> : number of mines
+  <P> : probability of mine
+   p  : probability of mine, symbolic calculation
   <STRATEGY> : one of the following:
     - sl: Single Logic
     - fl: Full Logic - Lowest Probability
@@ -54,6 +55,8 @@ std::shared_ptr<BaseSolver> ParseSolver(const char *str)
 }
 
 #ifdef MW1D_DLL
+
+#include <fstream>
 
 void CoreSaveResult(prob &&result, const char *filePath)
 {
@@ -208,8 +211,8 @@ int main(int argc, char **argv)
 
         n = ParseSizeT(argv[1]);
 
-        prob p;
-        if (TryParseRational(argv[2], p))
+        auto p = MakeSymbol("p");
+        if (strcmp(argv[2], "p") == 0 || TryParseRational(argv[2], p))
             builder = std::make_shared<ProbabilityBuilder>(n, p);
         else
         {

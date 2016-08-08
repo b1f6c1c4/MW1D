@@ -1,17 +1,16 @@
 #include "stdafx.h"
 
-#ifdef USE_RATIONAL
+#ifdef USE_CAS
 
 std::string to_string(prob value)
 {
-    return value.str();
+    return to_alias_string(value);
 }
 
 std::string to_alias_string(prob value)
 {
     std::ostringstream out;
-    out.precision(std::numeric_limits<double>::max_digits10);
-    out << value.convert_to<double>();
+    out << value;
     return out.str();
 }
 

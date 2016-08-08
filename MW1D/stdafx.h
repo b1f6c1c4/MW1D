@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <limits>
 #include <sstream>
 #include <iomanip>
 #include "../../CppUtil/CppUtil/CopyMove.hpp"
@@ -24,11 +23,9 @@ typedef std::vector<bool> bits;
 typedef std::vector<bool>::reference bit_reference;
 typedef std::vector<bool>::const_reference bit_const_reference;
 
-#ifdef USE_RATIONAL
+#ifdef USE_CAS
 
-#include "boost/multiprecision/cpp_int.hpp"
-
-typedef boost::multiprecision::cpp_rational prob;
+#include "Expression.h"
 std::string to_string(prob value);
 std::string to_alias_string(prob value);
 

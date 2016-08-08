@@ -54,7 +54,7 @@ MicroSet::MicroSet() : m_TotalProb(0) { }
 
 MicroSet::MicroSet(const MicroSet &other) : m_Set(other.m_Set), m_TotalProb(other.m_TotalProb) { }
 
-MicroSet::MicroSet(const MicroSet &other, filter_t filter)
+MicroSet::MicroSet(const MicroSet &other, filter_t filter) : m_TotalProb(0)
 {
     m_Set.reserve(other.m_Set.size());
     std::copy_if(other.m_Set.begin(), other.m_Set.end(), std::back_inserter(m_Set), filter);
