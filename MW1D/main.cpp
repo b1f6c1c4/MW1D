@@ -15,6 +15,7 @@ using namespace std::chrono_literals;
 
 void WriteUsage()
 {
+#ifdef USE_CAS
     std::cout << R"(MW1D:
 Usage: MW1D <N> [<M>|<P>|p] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
 Return:
@@ -23,7 +24,7 @@ Return:
 Parameters:
   <N> : length of board
   <M> : number of mines
-  <P> : probability of mine
+  <P> : probability of mine, num/den
    p  : probability of mine, symbolic calculation
   <STRATEGY> : one of the following:
     - sl: Single Logic
@@ -41,6 +42,33 @@ Parameters:
   <EXTRA> : string with length of <N>:
     - -: closed
     - +: open)" << std::endl;
+#else
+    std::cout << R"(MW1D:
+Usage: MW1D <N> [<M>|<P>] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
+Return:
+  The probability of winning a 1xN Minesweeper game with the specified strategy
+  Attention: One may lose on the first click
+Parameters:
+  <N> : length of board
+  <M> : number of mines
+  <P> : probability of mine, num/den
+  <STRATEGY> : one of the following:
+    - sl: Single Logic
+    - fl: Full Logic - Lowest Probability
+    - op: Optimal
+  <VERBOSITY> : how verbose the output is
+    - -2: just raw output (no `-v' is this)
+    - -1: run async and monitor (plain `-v' is this)
+    - x>0: depth <= x
+  <FILTER> : string with length of <N>:
+    - -: don't care
+    - m|M: is mine
+    - f|F: is not mine
+    - 0|1|2 : x mines surrounding
+  <EXTRA> : string with length of <N>:
+    - -: closed
+    - +: open)" << std::endl;
+#endif
 }
 
 std::shared_ptr<BaseSolver> ParseSolver(const char *str)
@@ -211,8 +239,16 @@ int main(int argc, char **argv)
 
         n = ParseSizeT(argv[1]);
 
+#ifdef USE_CAS
         auto p = MakeSymbol("p");
-        if (strcmp(argv[2], "p") == 0 || TryParseRational(argv[2], p))
+        if (strcmp(argv[2], "p") == 0)
+            builder = std::make_shared<ProbabilityBuilder>(n, p);
+#else
+        prob p;
+        if (strcmp(argv[2], "p") == 0)
+            throw std::runtime_error("cannot symbolic");
+#endif
+        else if (TryParseRational(argv[2], p))
             builder = std::make_shared<ProbabilityBuilder>(n, p);
         else
         {

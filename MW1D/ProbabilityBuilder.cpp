@@ -14,7 +14,10 @@ void ProbabilityBuilder::First(Micro &set)
 {
     auto n = GetN();
 #ifdef USE_CAS
-    set.resize(n, false);
+    if (m_P->OneQ())
+        set.resize(n, true);
+    else
+        set.resize(n, false);
 #else
     if (m_P == 1)
         set.resize(n, true);
@@ -25,7 +28,10 @@ void ProbabilityBuilder::First(Micro &set)
 
 bool ProbabilityBuilder::Next(Micro &set)
 {
-#ifndef USE_CAS
+#ifdef USE_CAS
+    if (m_P->ZeroQ() || m_P->OneQ())
+        return false;
+#else
     if (m_P == 0 || m_P == 1)
         return false;
 #endif
