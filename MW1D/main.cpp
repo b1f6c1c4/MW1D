@@ -28,7 +28,13 @@ Parameters:
    p  : probability of mine, symbolic calculation
   <STRATEGY> : one of the following:
     - sl: Single Logic
-    - fl: Full Logic - Lowest Probability
+    - fl: Full Logic, can be followed by (prefix `-'):
+      - P: Lowest probability in 1 step
+      - U: Lowest probability in 2 steps
+      - S: Next safe move
+      - E: More safe blocks
+      - Q: Max entropy of distribution
+      - Z: Max zero
     - op: Optimal
   <VERBOSITY> : how verbose the output is
     - -2: just raw output (no `-v' is this)
@@ -71,12 +77,28 @@ Parameters:
 #endif
 }
 
+std::shared_ptr<BaseSolver> TryParseFullSolver(const char *str)
+{
+    if (*str++ != 'f')
+        return nullptr;
+    if (*str++ != 'l')
+        return nullptr;
+    if (*str == '\0')
+        return std::make_shared<FullSolver>();
+    if (*str++ != '-')
+        return nullptr;
+    return std::make_shared<FullSolver>(CreateHeuristic(str));
+}
+
 std::shared_ptr<BaseSolver> ParseSolver(const char *str)
 {
     if (strcmp(str, "sl") == 0)
         return std::make_shared<SingleSolver>();
-    if (strcmp(str, "fl") == 0)
-        return std::make_shared<FullSolver>();
+    {
+        auto ptr = TryParseFullSolver(str);
+        if (ptr != nullptr)
+            return ptr;
+    }
     if (strcmp(str, "op") == 0)
         return std::make_shared<OptimalSolver>();
     return nullptr;

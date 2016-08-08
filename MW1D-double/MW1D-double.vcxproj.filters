@@ -51,6 +51,9 @@
     <ClCompile Include="..\MW1D\stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\MW1D\FLHeuristic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\MW1D\BaseSolver.h">
@@ -90,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\MW1D\stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MW1D\FLHeuristic.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

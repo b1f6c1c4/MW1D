@@ -1,48 +1,58 @@
 #include "stdafx.h"
 #include "FullSolver.h"
 
-FullSolver::FullSolver() { }
+FullSolver::FullSolver() : m_Heuristic(nullptr) { }
+
+FullSolver::FullSolver(std::shared_ptr<FLHeuristic> heu) : m_Heuristic(heu) { }
 
 FullSolver::~FullSolver() { }
 
 std::string FullSolver::GetDescription() const
 {
-    return "Full Logic - Lowest Probability";
+    if (m_Heuristic != nullptr)
+        return "Full Logic - " + m_Heuristic->GetDescription();
+
+    return "Full Logic - No Heuristic";
 }
 
 prob FullSolver::Fork(ExtendedMacro &macro, size_t depth)
 {
-    std::vector<size_t> cnts(macro.GetN(), 0);
+    auto n = macro.GetN();
+    std::vector<bool> possible(n, false);
     for (auto it = macro.begin(); it != macro.end(); ++it)
-        for (size_t i = 0; i < macro.GetN(); i++)
+        for (size_t i = 0; i < n; i++)
             if ((*it)[i])
-                cnts[i]++;
+                possible[i] = true;
 
     IncrementForks();
 
-    for (size_t i = 0; i < macro.GetN(); i++)
-        if (cnts[i] == 0 && !macro.IsOpen(i))
+    for (size_t i = 0; i < n; i++)
+        if (!possible[i] && !macro.IsOpen(i))
             return BaseSolver::Fork(macro, i, depth);
 
-    return ForkProb(macro, cnts, depth);
+    return Heuristic(macro, depth);
 }
 
-prob FullSolver::ForkProb(ExtendedMacro &macro, const std::vector<size_t> &cnts, size_t depth)
+prob FullSolver::Heuristic(ExtendedMacro &macro, size_t depth)
 {
-    auto val = macro.size();
+    auto n = macro.GetN();
+    std::vector<bool> possibleN(n, false);
+    for (auto it = macro.begin(); it != macro.end(); ++it)
+        for (size_t i = 0; i < n; i++)
+            if (!(*it)[i])
+                possibleN[i] = true;
 
-    for (size_t i = 0; i < macro.GetN(); i++)
-        if (cnts[i] < val && !macro.IsOpen(i))
-            val = cnts[i];
+    std::vector<size_t> target;
+    for (size_t i = 0; i < n; i++)
+        if (possibleN[i] && !macro.IsOpen(i))
+            target.push_back(i);
+
+    if (m_Heuristic != nullptr)
+        m_Heuristic->Process(macro, target);
 
     prob p = 0;
-    size_t cnt = 0;
-    for (size_t i = 0; i < macro.GetN(); i++)
-        if (cnts[i] <= val && !macro.IsOpen(i))
-        {
-            p += BaseSolver::Fork(macro, i, depth);
-            cnt++;
-        }
+    for (size_t i = 0; i < target.size(); i++)
+        p += BaseSolver::Fork(macro, target[i], depth);
 
-    return p / cnt;
+    return p / target.size();
 }

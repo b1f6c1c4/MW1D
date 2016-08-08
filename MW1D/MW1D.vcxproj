@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseSolver.cpp" />
+    <ClCompile Include="FLHeuristic.cpp" />
     <ClCompile Include="FullSolver.cpp" />
     <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseSolver.h" />
+    <ClInclude Include="FLHeuristic.h" />
     <ClInclude Include="FullSolver.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="Macro.h" />

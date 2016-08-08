@@ -51,6 +51,9 @@
     <ClCompile Include="MineSweeper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="FLHeuristic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Macro.h">
@@ -90,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Expression.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FLHeuristic.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
