@@ -47,9 +47,6 @@ void BaseSolver::Log(size_t depth, std::function<std::string()> strFunction) con
 
 prob BaseSolver::PreFork(ExtendedMacro &macro, size_t depth)
 {
-    if (macro.size() == 1)
-        return 1;
-
     auto &&p = Fork(macro, depth);
 
     for (auto &micro : macro)

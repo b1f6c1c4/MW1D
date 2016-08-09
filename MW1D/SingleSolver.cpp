@@ -163,6 +163,9 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
         cnt++;
     }
 
+    if (cnt == 0)
+        return 0;
+
     Log(depth, [&]()
         {
             return "p=" + to_string(p / cnt);
