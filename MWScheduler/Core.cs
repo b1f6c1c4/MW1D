@@ -5,9 +5,9 @@ namespace MWScheduler
 {
     public abstract class Core
     {
-        protected abstract void CalculateT(int n, int m, string solver, string filePath);
+        protected abstract void CalculateT(int n, int m, bool nR, string solver, string filePath);
 
-        protected abstract void CalculateP(int n, int pN, int pD, string solver, string filePath);
+        protected abstract void CalculateP(int n, int pN, int pD, bool nR, string solver, string filePath);
 
         public void Process(Config cfg, string baseDir)
         {
@@ -17,6 +17,7 @@ namespace MWScheduler
                 CalculateT(
                            cfg.Width,
                            cfg.TotalMines,
+                           cfg.NotRigorous,
                            cfg.Strategy,
                            filePath);
             else
@@ -24,6 +25,7 @@ namespace MWScheduler
                            cfg.Width,
                            cfg.Probability.Numerator,
                            cfg.Probability.Denominator,
+                           cfg.NotRigorous,
                            cfg.Strategy,
                            filePath);
             stopwatch.Stop();

@@ -43,6 +43,9 @@ namespace MWScheduler
 
         public Rational Probability { get; set; }
 
+        [XmlAttribute]
+        public bool NotRigorous { get; set; }
+
         public string Strategy { get; set; }
 
         public long Elapsed { get; set; }

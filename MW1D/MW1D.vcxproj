@@ -72,6 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ExeDebug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\b1f6c1c4\Documents\Tools\boost_1_61_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\b1f6c1c4\Documents\Tools\boost_1_61_0\stage\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -80,6 +81,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ExeRelease|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Users\b1f6c1c4\Documents\Tools\boost_1_61_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\b1f6c1c4\Documents\Tools\boost_1_61_0\stage\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

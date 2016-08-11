@@ -11,109 +11,23 @@
 #include "ProbabilityBuilder.h"
 #include "MineSweeper.h"
 
-using namespace std::chrono_literals;
-
-void WriteUsage()
+std::shared_ptr<BaseSolver> ParseSolver(const std::string &str)
 {
-#ifdef USE_CAS
-    std::cout << R"(MW1D:
-Usage: MW1D <N> [<M>|<P>|p] [-n|--not-rigorous] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
-Return:
-  The probability of winning a 1xN Minesweeper game with the specified strategy
-  Attention: One may lose on the first click
-Parameters:
-  <N> : length of board
-  <M> : number of mines
-  <P> : probability of mine, num/den
-   p  : probability of mine, symbolic calculation
-  --not-rigorous : first step no mine
-  <STRATEGY> : one of the following:
-    - sl: Single Logic
-    - sle: Single Logic Extended
-    - fl: Full Logic, can be followed by (prefix `-'):
-      - P: Lowest probability in 1 step
-      - U: Lowest probability in 2 steps
-      - S: Next safe move
-      - E: More safe blocks
-      - Q: Max entropy of distribution
-      - Z: Max zero
-    - op: Optimal
-  <VERBOSITY> : how verbose the output is
-    - -2: just raw output (no `-v' is this)
-    - -1: run async and monitor (plain `-v' is this)
-    - x>0: depth <= x
-  <FILTER> : string with length of <N>:
-    - -: don't care
-    - m|M: is mine
-    - f|F: is not mine
-    - 0|1|2 : x mines surrounding
-  <EXTRA> : string with length of <N>:
-    - -: closed
-    - +: open)" << std::endl;
-#else
-    std::cout << R"(MW1D-double:
-Usage: MW1D <N> [<M>|<P>|p] [-n|--not-rigorous] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
-Return:
-  The probability of winning a 1xN Minesweeper game with the specified strategy
-  Attention: One may lose on the first click
-Parameters:
-  <N> : length of board
-  <M> : number of mines
-  <P> : probability of mine, num/den
-  --not-rigorous : first step no mine
-  <STRATEGY> : one of the following:
-    - sl: Single Logic
-    - sle: Single Logic Extended
-    - fl: Full Logic, can be followed by (prefix `-'):
-      - P: Lowest probability in 1 step
-      - U: Lowest probability in 2 steps
-      - S: Next safe move
-      - E: More safe blocks
-      - Q: Max entropy of distribution
-      - Z: Max zero
-    - op: Optimal
-  <VERBOSITY> : how verbose the output is
-    - -2: just raw output (no `-v' is this)
-    - -1: run async and monitor (plain `-v' is this)
-    - x>0: depth <= x
-  <FILTER> : string with length of <N>:
-    - -: don't care
-    - m|M: is mine
-    - f|F: is not mine
-    - 0|1|2 : x mines surrounding
-  <EXTRA> : string with length of <N>:
-    - -: closed
-    - +: open)" << std::endl;
-#endif
-}
-
-std::shared_ptr<BaseSolver> TryParseFullSolver(const char *str)
-{
-    if (*str++ != 'f')
-        return nullptr;
-    if (*str++ != 'l')
-        return nullptr;
-    if (*str == '\0')
-        return std::make_shared<FullSolver>();
-    if (*str++ != '-')
-        return nullptr;
-    return std::make_shared<FullSolver>(CreateHeuristic(str));
-}
-
-std::shared_ptr<BaseSolver> ParseSolver(const char *str)
-{
-    if (strcmp(str, "sl") == 0)
+    if (str == "sl")
         return std::make_shared<SingleSolver>(false);
-    if (strcmp(str, "sle") == 0)
+    if (str == "sle")
         return std::make_shared<SingleSolver>(true);
+    if (str.length() >= 2 && str.substr(0, 2) == "fl")
     {
-        auto ptr = TryParseFullSolver(str);
-        if (ptr != nullptr)
-            return ptr;
+        if (str.length() == 2)
+            return std::make_shared<FullSolver>();
+        if (str.length() > 3)
+            return std::make_shared<FullSolver>(CreateHeuristic(str.substr(3)));
+        throw std::runtime_error("format error");
     }
-    if (strcmp(str, "op") == 0)
+    if (str == "op")
         return std::make_shared<OptimalSolver>();
-    return nullptr;
+    throw std::runtime_error("format error");
 }
 
 #ifdef MW1D_DLL
@@ -129,30 +43,31 @@ void CoreSaveResult(prob &&result, const char *filePath)
 
 extern "C"
 {
-    DLL_API void CoreInterfaceT(__int32 n, __int32 m, const char *solver, const char *filePath)
+    DLL_API void CoreInterfaceT(__int32 n, __int32 m, bool nR, const char *solver, const char *filePath)
     {
         auto builder = std::make_shared<TotalMinesBuilder>(n, m);
         auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv, nullptr, nullptr);
+        MineSweeper mw(builder, nR, slv, nullptr, nullptr);
         mw.Run(-2);
         CoreSaveResult(mw.GetResult(), filePath);
     }
 
-    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, const char *solver, const char *filePath)
+    DLL_API void CoreInterfaceP(__int32 n, __int32 pN, __int32 pD, bool nR, const char *solver, const char *filePath)
     {
         prob p = pN;
         p /= pD;
         auto builder = std::make_shared<ProbabilityBuilder>(n, p);
         auto slv = ParseSolver(solver);
-        MineSweeper mw(builder, slv, nullptr, nullptr);
+        MineSweeper mw(builder, nR, slv, nullptr, nullptr);
         mw.Run(-2);
         CoreSaveResult(mw.GetResult(), filePath);
     }
 }
 
 #else
+#include "boost/program_options.hpp"
 
-size_t ParseSizeT(const char *str)
+size_t ParseSizeT(const std::string &str)
 {
 #ifdef _WIN64
     return std::stoull(str);
@@ -161,58 +76,22 @@ size_t ParseSizeT(const char *str)
 #endif
 }
 
-bool TryParseRational(const char *str, prob &res)
+bool TryParseRational(const std::string &str, prob &res)
 {
-    auto ptr = str;
-    while (*ptr != '\0')
+    for (auto ptr = str.begin();ptr != str.end();++ptr)
     {
-        if (*ptr == '/')
-        {
-            auto tmp = new char[ptr - str + 1];
-            memcpy(tmp, str, sizeof(char) * (ptr - str));
-            tmp[ptr - str] = '\0';
-            res = ParseSizeT(tmp);
-            res /= ParseSizeT(ptr + 1);
-            return true;
-        }
-        ptr++;
+        if (*ptr != '/')
+            continue;
+        res = ParseSizeT(str.substr(0, ptr - str.begin()));
+        res /= ParseSizeT(str.substr(ptr - str.begin() + 1));
+        return true;
     }
     return false;
 }
 
-bool ParseNotRigorous(const char *str)
+std::shared_ptr<std::vector<block_t>> ParseFilter(const std::string &str)
 {
-    if (strcmp(str, "-n") == 0 || strcmp(str, "--not-rigorous") == 0)
-        return true;
-
-    return false;
-}
-
-bool ParseVerbosity(const char *str, int &out)
-{
-    if (str == nullptr || str[0] != '-' || str[1] != 'v')
-    {
-        out = -2;
-        return false;
-    }
-
-    if (str[2] == '\0')
-    {
-        out = -1;
-        return true;
-    }
-
-    if (str[2] != '=')
-        throw std::runtime_error("format error");
-
-    out = std::stoi(str + 3);
-
-    return true;
-}
-
-std::shared_ptr<std::vector<block_t>> ParseFilter(const char *str)
-{
-    auto n = strlen(str);
+    auto n = str.length();
     auto res = std::make_shared<std::vector<block_t>>(n, UNKNOWN);
 
     for (auto i = 0; i < n; i++)
@@ -243,9 +122,9 @@ std::shared_ptr<std::vector<block_t>> ParseFilter(const char *str)
     return res;
 }
 
-std::shared_ptr<std::vector<bool>> ParseExtra(const char *str)
+std::shared_ptr<std::vector<bool>> ParseExtra(const std::string &str)
 {
-    auto n = strlen(str);
+    auto n = str.length();
     auto res = std::make_shared<std::vector<bool>>(n, false);
 
     for (auto i = 0; i < n; i++)
@@ -264,76 +143,111 @@ std::shared_ptr<std::vector<bool>> ParseExtra(const char *str)
 
 int main(int argc, char **argv)
 {
-    if (argc < 4 || argc > 7)
-    {
-        WriteUsage();
-        return 0;
-    }
+    auto verbosity = -2;
+    size_t n;
+    std::string MP;
+    std::string strategy;
+    std::string filterS;
+    std::string extraS;
 
-    int verbosity;
     std::shared_ptr<MicroSetBuilder> builder;
     std::shared_ptr<std::vector<block_t>> filter;
     std::shared_ptr<std::vector<bool>> extra;
-    size_t n;
+    std::shared_ptr<BaseSolver> slv;
+
+    namespace po = boost::program_options;
+    po::options_description desc("Options");
+    desc.add_options()
+        ("help,h", "Print help messages")
+        ("not-rigorous,n", "First step no mine")
+        (",v", po::value<int>(&verbosity), "Verbosity, -2 = raw, -1 = monitor")
+        ("N", po::value<size_t>(&n)->required(), "length of board")
+        ("MP", po::value<std::string>(&MP)->required(),
+#ifdef USE_CAS
+         "number of mines; probability of mine, num/den; `p' for symbolic calculation")
+#else
+         "number of mines; probability of mine, num/den")
+#endif
+        ("STRATEGY", po::value<std::string>(&strategy)->required(), "strategy: sl/sle/fl/op")
+        ("FILTER", po::value<std::string>(&filterS), "string length <N> -:don't care; mM:mine; fF:not mine; 012: surrounding")
+        ("EXTRA", po::value<std::string>(&extraS), "string length <N> -:closed; +:open");
+
+    po::positional_options_description positionalOptions;
+    positionalOptions.add("N", 1);
+    positionalOptions.add("MP", 1);
+    positionalOptions.add("STRATEGY", 1);
+    positionalOptions.add("FILTER", 1);
+    positionalOptions.add("EXTRA", 1);
+
+    po::variables_map vm;
     try
     {
-        auto isVerb = ParseVerbosity(argc >= 5 ? argv[4] : nullptr, verbosity);
+        po::store(
+                  po::command_line_parser(argc, argv)
+                  .options(desc)
+                  .positional(positionalOptions).run(),
+                  vm);
+        if (vm.count("help"))
+        {
+#ifdef USE_CAS
+            std::cout << "MW1D";
+#else
+            std::cout << "MW1D-double";
+#endif
+            std::cout << std::endl << desc << std::endl;
+            return 0;
+        }
 
-        n = ParseSizeT(argv[1]);
+        po::notify(vm);
 
 #ifdef USE_CAS
         auto p = MakeSymbol("p");
-        if (strcmp(argv[2], "p") == 0)
+        if (MP == "p")
             builder = std::make_shared<ProbabilityBuilder>(n, p);
 #else
         prob p;
-        if (strcmp(argv[2], "p") == 0)
+        if (MP == "p")
             throw std::runtime_error("cannot symbolic");
 #endif
-        else if (TryParseRational(argv[2], p))
+        else if (TryParseRational(MP, p))
             builder = std::make_shared<ProbabilityBuilder>(n, p);
         else
         {
-            auto m = ParseSizeT(argv[2]);
+            auto m = ParseSizeT(MP);
             builder = std::make_shared<TotalMinesBuilder>(n, m);
         }
 
-        auto filterId = isVerb ? 5 : 4;
-        if (argc > filterId)
-        {
-            filter = ParseFilter(argv[filterId]);
-            if (argc > filterId + 1)
-            {
-                extra = ParseExtra(argv[filterId + 1]);
-                if (argc > filterId + 2)
-                    throw std::runtime_error("format error");
-            }
-        }
-    }
-    catch (...)
-    {
-        WriteUsage();
-        return 0;
-    }
+        if (filterS.length() > 0)
+            filter = ParseFilter(filterS);
+        if (extraS.length() > 0)
+            extra = ParseExtra(extraS);
 
-    auto slv = ParseSolver(argv[3]);
-    if (slv == nullptr)
+        slv = ParseSolver(strategy);
+    }
+    catch (std::exception &e)
     {
-        WriteUsage();
-        return 0;
+        std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+        std::cerr << desc << std::endl;
+        return 1;
     }
 
     if (verbosity != -2)
     {
         std::cout << "Solving 1x" << n << " Minesweeper game ";
+        if (vm.count("not-rigorous") > 0)
+            std::cout << "(Not Rigorous) ";
         std::cout << "using strategy " << slv->GetDescription() << std::endl;
     }
 
-    MineSweeper mw(builder, false, slv, filter, extra);
-    if (verbosity == -1)
-        mw.RunAsync(200ms);
-    else
-        mw.Run(verbosity);
+    MineSweeper mw(builder, vm.count("not-rigorous") > 0, slv, filter, extra);
+    {
+        using namespace std::chrono_literals;
+
+        if (verbosity == -1)
+            mw.RunAsync(200ms);
+        else
+            mw.Run(verbosity);
+    }
 
     if (verbosity != -2)
     {
