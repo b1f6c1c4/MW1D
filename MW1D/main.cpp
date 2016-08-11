@@ -28,6 +28,7 @@ Parameters:
    p  : probability of mine, symbolic calculation
   <STRATEGY> : one of the following:
     - sl: Single Logic
+    - sle: Single Logic Extended
     - fl: Full Logic, can be followed by (prefix `-'):
       - P: Lowest probability in 1 step
       - U: Lowest probability in 2 steps
@@ -93,7 +94,9 @@ std::shared_ptr<BaseSolver> TryParseFullSolver(const char *str)
 std::shared_ptr<BaseSolver> ParseSolver(const char *str)
 {
     if (strcmp(str, "sl") == 0)
-        return std::make_shared<SingleSolver>();
+        return std::make_shared<SingleSolver>(false);
+    if (strcmp(str, "sle") == 0)
+        return std::make_shared<SingleSolver>(true);
     {
         auto ptr = TryParseFullSolver(str);
         if (ptr != nullptr)

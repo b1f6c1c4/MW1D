@@ -2,13 +2,15 @@
 #include "SingleSolver.h"
 #include <sstream>
 
-SingleSolver::SingleSolver() { }
+SingleSolver::SingleSolver(bool extended) : m_Extended(extended) { }
 
 SingleSolver::~SingleSolver() { }
 
 std::string SingleSolver::GetDescription() const
 {
-    return "Single";
+    if (m_Extended)
+        return "Single Logic Extended";
+    return "Single Logic";
 }
 
 prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
@@ -124,6 +126,63 @@ prob SingleSolver::Fork(ExtendedMacro &macro, size_t depth)
                 {
                     toFork = i + 1;
                     break;
+                }
+            }
+        }
+        if (toFork < macro.GetN())
+            break;
+
+        if (m_Extended && m_M >= 0)
+        {
+            size_t cnt = 0;
+            for (size_t i = 0; i <= last; i++)
+                if (macro.Info[i] == MINE)
+                    cnt++;
+
+            if (last >= 2 && macro.Info[0] >= 0 && macro.Info[0] + cnt - (macro.Info[1] == MINE ? 1 : 0) == m_M)
+            {
+                for (size_t j = 2; j <= last; j++)
+                    if (!macro.IsOpen(j) && macro.Info[j] != MINE)
+                    {
+                        toFork = j;
+                        break;
+                    }
+                if (toFork < macro.GetN())
+                    break;
+            }
+            if (last >= 2 && macro.Info[last] >= 0 && macro.Info[last] + cnt - (macro.Info[last - 1] == MINE ? 1 : 0) == m_M)
+            {
+                for (size_t j = 0; j <= last - 2; j++)
+                    if (!macro.IsOpen(j) && macro.Info[j] != MINE)
+                    {
+                        toFork = j;
+                        break;
+                    }
+                if (toFork < macro.GetN())
+                    break;
+            }
+            for (size_t i = 1; i < last; i++)
+            {
+                if (macro.Info[i] >= 0 && macro.Info[i] + cnt - (macro.Info[i - 1] == MINE ? 1 : 0) - (macro.Info[i + 1] == MINE ? 1 : 0) == m_M)
+                {
+                    if (i >= 2)
+                        for (size_t j = 0; j <= i - 2; j++)
+                            if (!macro.IsOpen(j) && macro.Info[j] != MINE)
+                            {
+                                toFork = j;
+                                break;
+                            }
+                    if (toFork < macro.GetN())
+                        break;
+                    if (last >= i + 2)
+                        for (size_t j = i + 2; j <= last; j++)
+                            if (!macro.IsOpen(j) && macro.Info[j] != MINE)
+                            {
+                                toFork = j;
+                                break;
+                            }
+                    if (toFork < macro.GetN())
+                        break;
                 }
             }
         }
