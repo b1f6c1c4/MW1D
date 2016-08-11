@@ -8,7 +8,7 @@
 class MineSweeper final
 {
 public:
-    MineSweeper(std::shared_ptr<MicroSetBuilder> builder, std::shared_ptr<BaseSolver> solver, std::shared_ptr<std::vector<block_t>> filter, std::shared_ptr<std::vector<bool>> extra);
+    MineSweeper(std::shared_ptr<MicroSetBuilder> builder, bool notRigorous, std::shared_ptr<BaseSolver> solver, std::shared_ptr<std::vector<block_t>> filter, std::shared_ptr<std::vector<bool>> extra);
     ~MineSweeper();
 
     NO_COPY(MineSweeper);
@@ -22,6 +22,7 @@ public:
 
 private:
     std::shared_ptr<MicroSetBuilder> m_Builder;
+    bool m_NotRigorous;
     std::shared_ptr<BaseSolver> m_Solver;
     std::shared_ptr<std::vector<block_t>> m_Filter;
     std::shared_ptr<std::vector<bool>> m_Extra;

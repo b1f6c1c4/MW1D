@@ -17,7 +17,7 @@ void WriteUsage()
 {
 #ifdef USE_CAS
     std::cout << R"(MW1D:
-Usage: MW1D <N> [<M>|<P>|p] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
+Usage: MW1D <N> [<M>|<P>|p] [-n|--not-rigorous] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
 Return:
   The probability of winning a 1xN Minesweeper game with the specified strategy
   Attention: One may lose on the first click
@@ -26,6 +26,7 @@ Parameters:
   <M> : number of mines
   <P> : probability of mine, num/den
    p  : probability of mine, symbolic calculation
+  --not-rigorous : first step no mine
   <STRATEGY> : one of the following:
     - sl: Single Logic
     - sle: Single Logic Extended
@@ -50,8 +51,8 @@ Parameters:
     - -: closed
     - +: open)" << std::endl;
 #else
-    std::cout << R"(MW1D:
-Usage: MW1D <N> [<M>|<P>] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
+    std::cout << R"(MW1D-double:
+Usage: MW1D <N> [<M>|<P>|p] [-n|--not-rigorous] <STRATEGY> [-v=<VERBOSITY>] [<FILTER> [<EXTRA>]]
 Return:
   The probability of winning a 1xN Minesweeper game with the specified strategy
   Attention: One may lose on the first click
@@ -59,9 +60,17 @@ Parameters:
   <N> : length of board
   <M> : number of mines
   <P> : probability of mine, num/den
+  --not-rigorous : first step no mine
   <STRATEGY> : one of the following:
     - sl: Single Logic
-    - fl: Full Logic - Lowest Probability
+    - sle: Single Logic Extended
+    - fl: Full Logic, can be followed by (prefix `-'):
+      - P: Lowest probability in 1 step
+      - U: Lowest probability in 2 steps
+      - S: Next safe move
+      - E: More safe blocks
+      - Q: Max entropy of distribution
+      - Z: Max zero
     - op: Optimal
   <VERBOSITY> : how verbose the output is
     - -2: just raw output (no `-v' is this)
@@ -168,6 +177,14 @@ bool TryParseRational(const char *str, prob &res)
         }
         ptr++;
     }
+    return false;
+}
+
+bool ParseNotRigorous(const char *str)
+{
+    if (strcmp(str, "-n") == 0 || strcmp(str, "--not-rigorous") == 0)
+        return true;
+
     return false;
 }
 
@@ -312,7 +329,7 @@ int main(int argc, char **argv)
         std::cout << "using strategy " << slv->GetDescription() << std::endl;
     }
 
-    MineSweeper mw(builder, slv, filter, extra);
+    MineSweeper mw(builder, false, slv, filter, extra);
     if (verbosity == -1)
         mw.RunAsync(200ms);
     else

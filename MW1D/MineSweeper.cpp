@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MineSweeper.h"
 
-MineSweeper::MineSweeper(std::shared_ptr<MicroSetBuilder> builder, std::shared_ptr<BaseSolver> solver, std::shared_ptr<std::vector<block_t>> filter, std::shared_ptr<std::vector<bool>> extra) : m_Builder(builder), m_Solver(solver), m_Filter(filter), m_Extra(extra) { }
+MineSweeper::MineSweeper(std::shared_ptr<MicroSetBuilder> builder, bool notRigorous, std::shared_ptr<BaseSolver> solver, std::shared_ptr<std::vector<block_t>> filter, std::shared_ptr<std::vector<bool>> extra) : m_Builder(builder), m_NotRigorous(notRigorous), m_Solver(solver), m_Filter(filter), m_Extra(extra) { }
 
 MineSweeper::~MineSweeper() { }
 
@@ -11,7 +11,7 @@ void MineSweeper::Run(int verbosity)
     m_Builder->Build(*root);
     DoFilter(*root);
     DoExtra(*root);
-    m_Solver->LoadData(root, m_Builder->GetM());
+    m_Solver->LoadData(root, m_Builder->GetM(), m_NotRigorous);
     m_Result = m_Solver->Solve(verbosity);
 }
 

@@ -11,7 +11,7 @@ ExtendedMacro::ExtendedMacro(const ExtendedMacro &other, size_t id, block_t m) :
 
 ExtendedMacro::~ExtendedMacro() { }
 
-BaseSolver::BaseSolver() : m_Root(nullptr), m_M(UNCERTAIN), m_Forks(0), m_Verbosity(-2) { }
+BaseSolver::BaseSolver() : m_Root(nullptr), m_M(UNCERTAIN), m_NotRigorous(false), m_Forks(0), m_Verbosity(-2) { }
 
 BaseSolver::~BaseSolver() { }
 
@@ -20,10 +20,11 @@ size_t BaseSolver::GetForks() const
     return m_Forks.load();
 }
 
-void BaseSolver::LoadData(std::shared_ptr<ExtendedMacro> root, size_t m)
+void BaseSolver::LoadData(std::shared_ptr<ExtendedMacro> root, size_t m, bool notRigorous)
 {
     m_Root = root;
     m_M = m;
+    m_NotRigorous = notRigorous;
 }
 
 void BaseSolver::IncrementForks()
@@ -91,9 +92,13 @@ prob BaseSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
             return "Fork #" + std::to_string(id) + ":";
         });
 
+    auto ptr = &macro;
+    if (depth == 0 && m_NotRigorous)
+        ptr = new ExtendedMacro(macro, id, NOMINE);
+
     for (auto m : lst)
     {
-        ExtendedMacro newMacro(macro, id, m);
+        ExtendedMacro newMacro(*ptr, id, m);
         if (newMacro.size() > 0)
         {
             auto &&p = newMacro.GetTotalProb();
@@ -101,14 +106,14 @@ prob BaseSolver::Fork(const ExtendedMacro &macro, size_t id, size_t depth)
             Log(depth, [&]()
                 {
                     return "  case " + std::to_string(static_cast<int>(m)) +
-                        " (p=" + to_string(p / macro.GetTotalProb()) + "):";
+                        " (p=" + to_string(p / ptr->GetTotalProb()) + "):";
                 });
             auto &&pf = PreFork(newMacro, depth + 1);
             p0 += p * pf;
         }
     }
 
-    p0 /= macro.GetTotalProb();
+    p0 /= ptr->GetTotalProb();
 
     Log(depth, [&]()
         {

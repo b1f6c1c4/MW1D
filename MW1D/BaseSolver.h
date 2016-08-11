@@ -12,7 +12,7 @@ public:
     ~ExtendedMacro();
 
     NO_COPY(ExtendedMacro);
-    NO_MOVE(ExtendedMacro);
+    DEFAULT_MOVE(ExtendedMacro);
 
     prob Prob;
     std::vector<block_t> Info;
@@ -31,7 +31,7 @@ public:
 
     size_t GetForks() const;
 
-    void LoadData(std::shared_ptr<ExtendedMacro> root, size_t m);
+    void LoadData(std::shared_ptr<ExtendedMacro> root, size_t m, bool notRigorous);
     prob Solve(int verbosity);
 
 protected:
@@ -44,6 +44,8 @@ protected:
 
     std::shared_ptr<ExtendedMacro> m_Root;
     size_t m_M;
+
+    bool m_NotRigorous;
 
 private:
     std::atomic<size_t> m_Forks;
